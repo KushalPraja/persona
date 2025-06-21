@@ -430,13 +430,12 @@ export default function BotPage() {
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm relative">
                 {bot && bot.graph && bot.graph.nodes.length > 0 ? (
                   <>
-                    <div className="h-[600px] relative">
+                    <div className="h-[600px] relative flex items-center justify-center">
                       <ForceGraph3D
                         graphData={bot.graph}
                         nodeColor={(node: any) => node.color || "#888"}
                         nodeLabel={(node: any) => `${node.id} (${node.group})`}
                         backgroundColor="rgba(255,255,255,1)"
-                        width={undefined}
                         height={600}
                         linkColor={() => "#000000"}
                         nodeRelSize={6}
