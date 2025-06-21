@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle, ImageIcon, Loader2, Package, Plus, Save, Upload, X, Settings, Hash } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, ImageIcon, Loader2, Package, Plus, Save, Upload, X, Settings, Hash, Users, Target, Zap, TrendingUp, DollarSign, Cpu } from 'lucide-react';
 import { uploadImageToBlob, isValidImageFile, formatFileSize, BlobUploadResult, deleteImageFromSupabase } from '@/lib/blob-storage';
 
 interface ProductData {
@@ -117,7 +117,7 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
         <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 rounded-t-lg">
           <div className="flex items-center gap-2">
             <Package className="w-4 h-4 text-blue-500" />
-            <h3 className="text-sm font-medium text-gray-900">Product</h3>
+            <h3 className="text-sm font-medium text-gray-900">Product Overview</h3>
           </div>
         </div>
 
@@ -213,7 +213,7 @@ const IssuesNode = ({ data, id }: { data: any; id: string }) => {
         <div className="bg-red-50 border-b border-red-100 px-4 py-3 rounded-t-lg">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-500" />
-            <h3 className="text-sm font-medium text-gray-900">Common Issues</h3>
+            <h3 className="text-sm font-medium text-gray-900">Product Limitations</h3>
           </div>
         </div>
 
@@ -336,7 +336,7 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
         <div className="bg-green-50 border-b border-green-100 px-4 py-3 rounded-t-lg">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <h3 className="text-sm font-medium text-gray-900">Solutions</h3>
+            <h3 className="text-sm font-medium text-gray-900">Product Capabilities</h3>
           </div>
         </div>
 
@@ -671,36 +671,359 @@ const CustomFieldNode = ({ data, id }: { data: any; id: string }) => {
   );
 };
 
+// Features Node Component
+const FeaturesNode = ({ data, id }: { data: any; id: string }) => {
+  const [features, setFeatures] = useState<Issue[]>(data.features || []);
+
+  React.useEffect(() => {
+    if (data.features) {
+      setFeatures(data.features);
+    }
+  }, [data.features]);
+
+  const addFeature = () => {
+    const newFeature: Issue = {
+      id: Date.now(),
+      title: "",
+      description: "",
+    };
+    const updated = [...features, newFeature];
+    setFeatures(updated);
+    data.onChange?.(id, { features: updated });
+  };
+
+  const updateFeature = (
+    featureId: number,
+    field: keyof Omit<Issue, "id">,
+    value: string
+  ) => {
+    const updated = features.map((feature) =>
+      feature.id === featureId ? { ...feature, [field]: value } : feature
+    );
+    setFeatures(updated);
+    data.onChange?.(id, { features: updated });
+  };
+
+  const removeFeature = (featureId: number) => {
+    const updated = features.filter((feature) => feature.id !== featureId);
+    setFeatures(updated);
+    data.onChange?.(id, { features: updated });
+  };
+
+  return (
+    <div className="relative">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-4 !h-4 !bg-blue-500 !border-2 !border-white !shadow-md"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-4 !h-4 !bg-blue-500 !border-2 !border-white !shadow-md"
+      />
+
+      <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-blue-500" />
+            <h3 className="text-sm font-medium text-gray-900">Features</h3>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {features.map((feature) => (
+            <div
+              key={feature.id}
+              className="border border-gray-200 rounded-lg p-3 space-y-2"
+            >
+              <div className="flex justify-between items-center">
+                <input
+                  value={feature.title}
+                  onChange={(e) =>
+                    updateFeature(feature.id, "title", e.target.value)
+                  }
+                  placeholder="Feature name"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => removeFeature(feature.id)}
+                  className="ml-2 p-1 text-gray-400 hover:text-red-500 rounded-md transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <textarea
+                value={feature.description}
+                onChange={(e) =>
+                  updateFeature(feature.id, "description", e.target.value)
+                }
+                placeholder="Feature description"
+                rows={2}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+            </div>
+          ))}
+          <button
+            onClick={addFeature}
+            className="w-full flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            Add Feature
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Use Cases Node Component
+const UseCasesNode = ({ data, id }: { data: any; id: string }) => {
+  const [useCases, setUseCases] = useState<Issue[]>(data.useCases || []);
+
+  React.useEffect(() => {
+    if (data.useCases) {
+      setUseCases(data.useCases);
+    }
+  }, [data.useCases]);
+
+  const addUseCase = () => {
+    const newUseCase: Issue = {
+      id: Date.now(),
+      title: "",
+      description: "",
+    };
+    const updated = [...useCases, newUseCase];
+    setUseCases(updated);
+    data.onChange?.(id, { useCases: updated });
+  };
+
+  const updateUseCase = (
+    useCaseId: number,
+    field: keyof Omit<Issue, "id">,
+    value: string
+  ) => {
+    const updated = useCases.map((useCase) =>
+      useCase.id === useCaseId ? { ...useCase, [field]: value } : useCase
+    );
+    setUseCases(updated);
+    data.onChange?.(id, { useCases: updated });
+  };
+
+  const removeUseCase = (useCaseId: number) => {
+    const updated = useCases.filter((useCase) => useCase.id !== useCaseId);
+    setUseCases(updated);
+    data.onChange?.(id, { useCases: updated });
+  };
+
+  return (
+    <div className="relative">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-4 !h-4 !bg-purple-500 !border-2 !border-white !shadow-md"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-4 !h-4 !bg-purple-500 !border-2 !border-white !shadow-md"
+      />
+
+      <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="bg-purple-50 border-b border-purple-100 px-4 py-3 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-purple-500" />
+            <h3 className="text-sm font-medium text-gray-900">Use Cases</h3>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {useCases.map((useCase) => (
+            <div
+              key={useCase.id}
+              className="border border-gray-200 rounded-lg p-3 space-y-2"
+            >
+              <div className="flex justify-between items-center">
+                <input
+                  value={useCase.title}
+                  onChange={(e) =>
+                    updateUseCase(useCase.id, "title", e.target.value)
+                  }
+                  placeholder="Use case title"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => removeUseCase(useCase.id)}
+                  className="ml-2 p-1 text-gray-400 hover:text-red-500 rounded-md transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <textarea
+                value={useCase.description}
+                onChange={(e) =>
+                  updateUseCase(useCase.id, "description", e.target.value)
+                }
+                placeholder="Use case description"
+                rows={2}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+            </div>
+          ))}
+          <button
+            onClick={addUseCase}
+            className="w-full flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            Add Use Case
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Personas Node Component
+const PersonasNode = ({ data, id }: { data: any; id: string }) => {
+  const [personas, setPersonas] = useState<Issue[]>(data.personas || []);
+
+  React.useEffect(() => {
+    if (data.personas) {
+      setPersonas(data.personas);
+    }
+  }, [data.personas]);
+
+  const addPersona = () => {
+    const newPersona: Issue = {
+      id: Date.now(),
+      title: "",
+      description: "",
+    };
+    const updated = [...personas, newPersona];
+    setPersonas(updated);
+    data.onChange?.(id, { personas: updated });
+  };
+
+  const updatePersona = (
+    personaId: number,
+    field: keyof Omit<Issue, "id">,
+    value: string
+  ) => {
+    const updated = personas.map((persona) =>
+      persona.id === personaId ? { ...persona, [field]: value } : persona
+    );
+    setPersonas(updated);
+    data.onChange?.(id, { personas: updated });
+  };
+
+  const removePersona = (personaId: number) => {
+    const updated = personas.filter((persona) => persona.id !== personaId);
+    setPersonas(updated);
+    data.onChange?.(id, { personas: updated });
+  };
+
+  return (
+    <div className="relative">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-4 !h-4 !bg-indigo-500 !border-2 !border-white !shadow-md"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-4 !h-4 !bg-indigo-500 !border-2 !border-white !shadow-md"
+      />
+
+      <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-3 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-500" />
+            <h3 className="text-sm font-medium text-gray-900">Target Users</h3>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {personas.map((persona) => (
+            <div
+              key={persona.id}
+              className="border border-gray-200 rounded-lg p-3 space-y-2"
+            >
+              <div className="flex justify-between items-center">
+                <input
+                  value={persona.title}
+                  onChange={(e) =>
+                    updatePersona(persona.id, "title", e.target.value)
+                  }
+                  placeholder="User persona name"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => removePersona(persona.id)}
+                  className="ml-2 p-1 text-gray-400 hover:text-red-500 rounded-md transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <textarea
+                value={persona.description}
+                onChange={(e) =>
+                  updatePersona(persona.id, "description", e.target.value)
+                }
+                placeholder="Describe this user persona, their needs, and pain points"
+                rows={2}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              />
+            </div>
+          ))}
+          <button
+            onClick={addPersona}
+            className="w-full flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            Add User Persona
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const nodeTypes: NodeTypes = {
-  productNode: ProductNode,
-  issuesNode: IssuesNode,
-  solutionsNode: SolutionsNode,
-  imageDescriptionNode: ImageDescriptionNode,
-  customFieldNode: CustomFieldNode,
+  // Renamed existing nodes for better product modeling
+  overviewNode: ProductNode, // productNode -> overviewNode (Product Overview)
+  limitationsNode: IssuesNode, // issuesNode -> limitationsNode (Product Limitations)
+  capabilitiesNode: SolutionsNode, // solutionsNode -> capabilitiesNode (Product Capabilities)
+  mediaNode: ImageDescriptionNode, // imageDescriptionNode -> mediaNode (Media Assets)
+  customFieldNode: CustomFieldNode, // Custom key-value fields
+  // New node types for comprehensive product modeling
+  featuresNode: FeaturesNode, // Product Features
+  useCasesNode: UseCasesNode, // Use Cases and Applications
+  personasNode: PersonasNode, // Target Users/Personas
 };
 
 const initialNodes: Node[] = [
   {
     id: "1",
-    type: "productNode",
+    type: "overviewNode", // Renamed from productNode
     position: { x: 100, y: 100 },
     data: { productData: {} },
   },
   {
     id: "2",
-    type: "issuesNode",
+    type: "limitationsNode", // Renamed from issuesNode
     position: { x: 450, y: 50 },
     data: { issues: [] },
   },
   {
     id: "3",
-    type: "solutionsNode",
+    type: "capabilitiesNode", // Renamed from solutionsNode
     position: { x: 450, y: 300 },
     data: { solutions: [] },
   },
   {
     id: "4",
-    type: "imageDescriptionNode",
+    type: "mediaNode", // Renamed from imageDescriptionNode
     position: { x: 450, y: 550 },
     data: { imageData: {} },
   },
@@ -943,44 +1266,77 @@ export default function ProductFlowPage({
     [setEdges]
   );
 
-  const addNewProduct = () => {
-    const newNodeId = `product-${Date.now()}`;
+  const addNewOverview = () => {
+    const newNodeId = `overview-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: "productNode" as const,
+      type: "overviewNode" as const, // Renamed from productNode
       position: { x: Math.random() * 200 + 100, y: Math.random() * 200 + 100 },
       data: { productData: {}, onChange: handleNodeDataChange },
     };
     setNodes((nds) => [...nds, newNode]);
   };
 
-  const addNewIssues = () => {
-    const newNodeId = `issues-${Date.now()}`;
+  const addNewFeatures = () => {
+    const newNodeId = `features-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: "issuesNode" as const,
-      position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 50 },
-      data: { issues: [], onChange: handleNodeDataChange },
+      type: "featuresNode" as const,
+      position: { x: Math.random() * 200 + 700, y: Math.random() * 200 + 100 },
+      data: { features: [], onChange: handleNodeDataChange },
     };
     setNodes((nds) => [...nds, newNode]);
   };
 
-  const addNewSolutions = () => {
-    const newNodeId = `solutions-${Date.now()}`;
+  const addNewUseCases = () => {
+    const newNodeId = `usecases-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: "solutionsNode" as const,
+      type: "useCasesNode" as const,
+      position: { x: Math.random() * 200 + 700, y: Math.random() * 200 + 300 },
+      data: { useCases: [], onChange: handleNodeDataChange },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addNewCapabilities = () => {
+    const newNodeId = `capabilities-${Date.now()}`;
+    const newNode = {
+      id: newNodeId,
+      type: "capabilitiesNode" as const, // Renamed from solutionsNode
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 300 },
       data: { solutions: [], onChange: handleNodeDataChange },
     };
     setNodes((nds) => [...nds, newNode]);
   };
 
-  const addNewImageDescription = () => {
-    const newNodeId = `image-${Date.now()}`;
+  const addNewLimitations = () => {
+    const newNodeId = `limitations-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: "imageDescriptionNode" as const,
+      type: "limitationsNode" as const, // Renamed from issuesNode
+      position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 50 },
+      data: { issues: [], onChange: handleNodeDataChange },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addNewPersonas = () => {
+    const newNodeId = `personas-${Date.now()}`;
+    const newNode = {
+      id: newNodeId,
+      type: "personasNode" as const,
+      position: { x: Math.random() * 200 + 700, y: Math.random() * 200 + 500 },
+      data: { personas: [], onChange: handleNodeDataChange },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addNewMedia = () => {
+    const newNodeId = `media-${Date.now()}`;
+    const newNode = {
+      id: newNodeId,
+      type: "mediaNode" as const, // Renamed from imageDescriptionNode
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 550 },
       data: { imageData: {}, onChange: handleNodeDataChange },
     };
@@ -1046,17 +1402,17 @@ export default function ProductFlowPage({
       return;
     }
 
-    // Check if there's a connected Product node
+    // Check if there's a connected Overview node
     const connectedNodes = nodes.filter((node) =>
       connectedNodeIds.has(node.id)
     );
-    const hasConnectedProductNode = connectedNodes.some(
-      (node) => node.type === "productNode"
+    const hasConnectedOverviewNode = connectedNodes.some(
+      (node) => node.type === "overviewNode" // Updated from productNode
     );
 
-    if (!hasConnectedProductNode) {
+    if (!hasConnectedOverviewNode) {
       alert(
-        "A Product node is required for publishing! Please connect at least one Product node to other nodes."
+        "An Overview node is required for publishing! Please connect at least one Overview node to other nodes."
       );
       return;
     }
@@ -1085,7 +1441,7 @@ export default function ProductFlowPage({
 
       // Get product data - check multiple sources
       const productNode = connectedNodes.find(
-        (node) => node.type === "productNode"
+        (node) => node.type === "overviewNode" // Updated from productNode
       );
       console.log("Product node found:", productNode);
 
@@ -1125,26 +1481,26 @@ export default function ProductFlowPage({
 
       csv += `Product Overview,"${escapeCSV(productOverview)}"\\r\\n`;
 
-      // Images Section
-      const imageNodes = connectedNodes.filter(
-        (node) => node.type === "imageDescriptionNode"
+      // Media Section
+      const mediaNodes = connectedNodes.filter(
+        (node) => node.type === "mediaNode" // Updated from imageDescriptionNode
       );
-      console.log("Image nodes found:", imageNodes);
+      console.log("Media nodes found:", mediaNodes);
 
-      if (imageNodes.length > 0) {
+      if (mediaNodes.length > 0) {
         let imagesContent = "";
-        imageNodes.forEach((node, index) => {
+        mediaNodes.forEach((node, index) => {
           const imageNodeData =
             nodeDataRef.current[node.id] ||
             node.data ||
             nodeData[node.id] ||
             {};
-          console.log(`Image node ${index + 1} data:`, imageNodeData);
+          console.log(`Media node ${index + 1} data:`, imageNodeData);
 
           const imageData = imageNodeData.imageData || {};
           if (imageData) {
             if (index > 0) imagesContent += " ";
-            imagesContent += `Image ${index + 1}: `;
+            imagesContent += `Media ${index + 1}: `;
             if (imageData.image?.url) {
               imagesContent += `Available at ${imageData.image.url}. `;
             }
@@ -1154,84 +1510,84 @@ export default function ProductFlowPage({
           }
         });
         if (imagesContent) {
-          csv += `Images and Media,"${escapeCSV(imagesContent.trim())}"\\r\\n`;
+          csv += `Media Assets,"${escapeCSV(imagesContent.trim())}"\\r\\n`;
         }
       }
 
-      // Common Issues Section
-      const issueNodes = connectedNodes.filter(
-        (node) => node.type === "issuesNode"
+      // Limitations Section
+      const limitationNodes = connectedNodes.filter(
+        (node) => node.type === "limitationsNode" // Updated from issuesNode
       );
-      console.log("Issue nodes found:", issueNodes);
+      console.log("Limitation nodes found:", limitationNodes);
 
-      if (issueNodes.length > 0) {
-        let issuesContent = "";
-        let issueCounter = 1;
-        issueNodes.forEach((node) => {
-          const issueNodeData =
+      if (limitationNodes.length > 0) {
+        let limitationsContent = "";
+        let limitationCounter = 1;
+        limitationNodes.forEach((node) => {
+          const limitationNodeData =
             nodeDataRef.current[node.id] ||
             node.data ||
             nodeData[node.id] ||
             {};
-          console.log("Issue node data:", issueNodeData);
+          console.log("Limitation node data:", limitationNodeData);
 
-          const issues = issueNodeData.issues || [];
+          const issues = limitationNodeData.issues || [];
           issues.forEach((issue: any) => {
             if (issue.title) {
-              if (issuesContent) issuesContent += " ";
-              issuesContent += `Issue ${issueCounter}: ${issue.title}.`;
+              if (limitationsContent) limitationsContent += " ";
+              limitationsContent += `Limitation ${limitationCounter}: ${issue.title}.`;
               if (issue.description) {
-                issuesContent += ` ${issue.description}.`;
+                limitationsContent += ` ${issue.description}.`;
               }
-              issueCounter++;
+              limitationCounter++;
             }
           });
         });
-        if (issuesContent) {
-          csv += `Common Issues,"${escapeCSV(issuesContent.trim())}"\\r\\n`;
+        if (limitationsContent) {
+          csv += `Product Limitations,"${escapeCSV(limitationsContent.trim())}"\\r\\n`;
         }
       }
 
-      // Solutions Section
-      const solutionNodes = connectedNodes.filter(
-        (node) => node.type === "solutionsNode"
+      // Capabilities Section
+      const capabilityNodes = connectedNodes.filter(
+        (node) => node.type === "capabilitiesNode" // Updated from solutionsNode
       );
-      console.log("Solution nodes found:", solutionNodes);
+      console.log("Capability nodes found:", capabilityNodes);
 
-      if (solutionNodes.length > 0) {
-        let solutionsContent = "";
-        let solutionCounter = 1;
-        solutionNodes.forEach((node) => {
-          const solutionNodeData =
+      if (capabilityNodes.length > 0) {
+        let capabilitiesContent = "";
+        let capabilityCounter = 1;
+        capabilityNodes.forEach((node) => {
+          const capabilityNodeData =
             nodeDataRef.current[node.id] ||
             node.data ||
             nodeData[node.id] ||
             {};
-          console.log("Solution node data:", solutionNodeData);
+          console.log("Capability node data:", capabilityNodeData);
 
-          const solutions = solutionNodeData.solutions || [];
+          const solutions = capabilityNodeData.solutions || [];
           solutions.forEach((solution: any) => {
             if (solution.title) {
-              if (solutionsContent) solutionsContent += " ";
-              solutionsContent += `Solution ${solutionCounter}: ${solution.title}.`;
+              if (capabilitiesContent) capabilitiesContent += " ";
+              capabilitiesContent += `Capability ${capabilityCounter}: ${solution.title}.`;
               if (solution.description) {
-                solutionsContent += ` ${solution.description}.`;
+                capabilitiesContent += ` ${solution.description}.`;
               }
               if (solution.steps && solution.steps.length > 0) {
                 const steps = solution.steps.filter((step: string) =>
                   step.trim()
                 );
                 if (steps.length > 0) {
-                  solutionsContent += ` Steps: ${steps.join(", ")}.`;
+                  capabilitiesContent += ` Implementation: ${steps.join(", ")}.`;
                 }
               }
-              solutionCounter++;
+              capabilityCounter++;
             }
           });
         });
-        if (solutionsContent) {
-          csv += `Solutions and Troubleshooting,"${escapeCSV(
-            solutionsContent.trim()
+        if (capabilitiesContent) {
+          csv += `Product Capabilities,"${escapeCSV(
+            capabilitiesContent.trim()
           )}"\\r\\n`;
         }
       }
@@ -1256,6 +1612,90 @@ export default function ProductFlowPage({
         });
         if (customFieldsContent) {
           csv += `Custom Fields,"${escapeCSV(customFieldsContent.trim())}"\\r\\n`;
+        }
+      }
+
+      // Features Section
+      const featureNodes = connectedNodes.filter(node => node.type === 'featuresNode');
+      console.log('Feature nodes found:', featureNodes);
+
+      if (featureNodes.length > 0) {
+        let featuresContent = '';
+        let featureCounter = 1;
+        featureNodes.forEach((node) => {
+          const featureNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log('Feature node data:', featureNodeData);
+
+          const features = featureNodeData.features || [];
+          features.forEach((feature: any) => {
+            if (feature.title) {
+              if (featuresContent) featuresContent += ' ';
+              featuresContent += `Feature ${featureCounter}: ${feature.title}.`;
+              if (feature.description) {
+                featuresContent += ` ${feature.description}.`;
+              }
+              featureCounter++;
+            }
+          });
+        });
+        if (featuresContent) {
+          csv += `Product Features,"${escapeCSV(featuresContent.trim())}"\\r\\n`;
+        }
+      }
+
+      // Use Cases Section
+      const useCaseNodes = connectedNodes.filter(node => node.type === 'useCasesNode');
+      console.log('Use case nodes found:', useCaseNodes);
+
+      if (useCaseNodes.length > 0) {
+        let useCasesContent = '';
+        let useCaseCounter = 1;
+        useCaseNodes.forEach((node) => {
+          const useCaseNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log('Use case node data:', useCaseNodeData);
+
+          const useCases = useCaseNodeData.useCases || [];
+          useCases.forEach((useCase: any) => {
+            if (useCase.title) {
+              if (useCasesContent) useCasesContent += ' ';
+              useCasesContent += `Use Case ${useCaseCounter}: ${useCase.title}.`;
+              if (useCase.description) {
+                useCasesContent += ` ${useCase.description}.`;
+              }
+              useCaseCounter++;
+            }
+          });
+        });
+        if (useCasesContent) {
+          csv += `Use Cases,"${escapeCSV(useCasesContent.trim())}"\\r\\n`;
+        }
+      }
+
+      // Target Users/Personas Section
+      const personaNodes = connectedNodes.filter(node => node.type === 'personasNode');
+      console.log('Persona nodes found:', personaNodes);
+
+      if (personaNodes.length > 0) {
+        let personasContent = '';
+        let personaCounter = 1;
+        personaNodes.forEach((node) => {
+          const personaNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log('Persona node data:', personaNodeData);
+
+          const personas = personaNodeData.personas || [];
+          personas.forEach((persona: any) => {
+            if (persona.title) {
+              if (personasContent) personasContent += ' ';
+              personasContent += `Target User ${personaCounter}: ${persona.title}.`;
+              if (persona.description) {
+                personasContent += ` ${persona.description}.`;
+              }
+              personaCounter++;
+            }
+          });
+        });
+        if (personasContent) {
+          csv += `Target Users,"${escapeCSV(personasContent.trim())}"\\r\\n`;
         }
       }
 
@@ -1318,12 +1758,12 @@ export default function ProductFlowPage({
     });
 
     const connectedNodes = nodes.filter((node) => connectedIds.has(node.id));
-    const hasConnectedProductNode = connectedNodes.some(
-      (node) => node.type === "productNode"
+    const hasConnectedOverviewNode = connectedNodes.some(
+      (node) => node.type === "overviewNode" // Updated from productNode
     );
 
-    if (!hasConnectedProductNode) {
-      return { canPublish: false, reason: "No Product node connected" };
+    if (!hasConnectedOverviewNode) {
+      return { canPublish: false, reason: "No Overview node connected" };
     }
 
     return { canPublish: true, reason: "", connectedCount: connectedIds.size };
@@ -1372,42 +1812,74 @@ export default function ProductFlowPage({
               <span className="text-sm font-medium text-gray-900">
                 Add Components
               </span>
-              <div className="flex gap-3">
-                <button
-                  onClick={addNewProduct}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  Product
-                </button>
-                <button
-                  onClick={addNewIssues}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <AlertCircle className="w-4 h-4" />
-                  Issues
-                </button>
-                <button
-                  onClick={addNewSolutions}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Solutions
-                </button>
-                <button
-                  onClick={addNewImageDescription}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  Image
-                </button>
-                <button
-                  onClick={addNewCustomField}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <Hash className="w-4 h-4" />
-                  Custom Fields
-                </button>
+              <div className="flex gap-3 flex-wrap">
+                {/* Core Product Components */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={addNewOverview}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                  >
+                    <Package className="w-4 h-4" />
+                    Overview
+                  </button>
+                  <button
+                    onClick={addNewFeatures}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-sm"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Features
+                  </button>
+                  <button
+                    onClick={addNewUseCases}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-all shadow-sm"
+                  >
+                    <Target className="w-4 h-4" />
+                    Use Cases
+                  </button>
+                </div>
+
+                {/* Analysis Components */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={addNewCapabilities}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all shadow-sm"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Capabilities
+                  </button>
+                  <button
+                    onClick={addNewLimitations}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    Limitations
+                  </button>
+                  <button
+                    onClick={addNewPersonas}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-all shadow-sm"
+                  >
+                    <Users className="w-4 h-4" />
+                    Target Users
+                  </button>
+                </div>
+
+                {/* Content Components */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={addNewMedia}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Media
+                  </button>
+                  <button
+                    onClick={addNewCustomField}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-all shadow-sm"
+                  >
+                    <Hash className="w-4 h-4" />
+                    Custom Fields
+                  </button>
+                </div>
               </div>
             </div>
 
