@@ -16,6 +16,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import QRCodeSVG from "@/components/qr-code";
+import { Dialog } from "@/components/ui/dialog";
 
 const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), {
   ssr: false,
@@ -51,6 +53,7 @@ export default function BotPage() {
   );
   const [activeView, setActiveView] = useState("chat");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -130,6 +133,23 @@ export default function BotPage() {
       default: "#a0a0a0",
     };
     return colors[group] || colors.default;
+  };
+
+  // Helper to download QR code as SVG
+  const downloadQR = () => {
+    const svg = document.getElementById("bot-qr-svg");
+    if (!svg) return;
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svg);
+    const blob = new Blob([source], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bot-qr.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (error) {
@@ -222,9 +242,52 @@ export default function BotPage() {
                 <Maximize2 className="w-4 h-4" />
               )}
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowQR(true)}
+              className="rounded-full px-4 py-2 text-sm transition-all duration-200 text-gray-600 hover:text-black hover:bg-gray-50"
+            >
+              QR Code
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* QR Code Dialog */}
+      {showQR && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-8 shadow-xl text-center relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-black"
+              onClick={() => setShowQR(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-medium mb-4">Scan to open this page</h2>
+            <div className="flex justify-center mb-4">
+              <QRCodeSVG
+                id="bot-qr-svg"
+                value={
+                  typeof window !== "undefined" ? window.location.href : ""
+                }
+                size={200}
+                bgColor="#fff"
+                fgColor="#000"
+                level="M"
+                includeMargin={true}
+              />
+            </div>
+            <Button
+              onClick={downloadQR}
+              className="bg-black text-white rounded-full px-6"
+            >
+              Download QR
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div
