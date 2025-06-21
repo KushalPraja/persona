@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -16,7 +16,17 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Plus, Save, AlertCircle, CheckCircle, Package, ImageIcon, Upload, X, ArrowLeft } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { AlertCircle, ArrowLeft, CheckCircle, ImageIcon, Loader2, Package, Plus, Save, Upload, X } from 'lucide-react';
 import { uploadImageToBlob, isValidImageFile, formatFileSize, BlobUploadResult, deleteImageFromSupabase } from '@/lib/blob-storage';
 
 interface ProductData {
@@ -565,6 +575,12 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     tone?: string;
     prompt?: string;
   }>({});
+  
+  // Bot creation states
+  const [isCreatingBot, setIsCreatingBot] = useState(false);
+  const [botUrl, setBotUrl] = useState("");
+  const [showBotDialog, setShowBotDialog] = useState(false);
+  const [botError, setBotError] = useState("");
 
   // Local storage key based on product ID
   const storageKey = `product-flow-${resolvedParams.id}`;
@@ -798,7 +814,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     setNodes((nds) => [...nds, newNode]);
   };
 
-  const publishData = () => {
+  const publishData = async () => {
     // Get all connected node IDs by traversing edges
     const getConnectedNodes = () => {
       const connectedNodeIds = new Set<string>();
@@ -992,51 +1008,38 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
     const csvData = generateCSV();
 
-    // Create formatted output
-    const formattedOutput = {
-      csv: csvData
-    };
+    // Submit to API
+    setIsCreatingBot(true);
+    setBotError("");
+    setBotUrl("");
 
-    console.log('=== PUBLISHED CSV DATA ===');
-    console.log('JSON Format:');
-    console.log(JSON.stringify(formattedOutput, null, 2));
-    console.log('\\n=== RAW CSV CONTENT ===');
-    console.log(csvData.replace(/\\\\r\\\\n/g, '\\n'));
-    console.log('\\n=== FORMATTED CSV ===');
-    // Show nicely formatted CSV for easy reading
-    const readableCSV = csvData.replace(/\\\\r\\\\n/g, '\\n');
-    console.log(readableCSV);
+    try {
+      const res = await fetch("http://localhost:5000/api/bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          csv: csvData,
+          prompt: projectParams.prompt || `Generate documentation for ${projectParams.name || 'this product'}`,
+          tone: projectParams.tone || 'professional'
+        }),
+      });
 
-    // Only include connected nodes in the export
-    const connectedEdges = edges;
-
-    const allData = {
-      productId: resolvedParams.id,
-      connectedComponents: nodeGroups.length,
-      nodes: connectedNodes.map(node => ({
-        id: node.id,
-        type: node.type,
-        position: node.position,
-        data: nodeDataRef.current[node.id] || node.data,
-        isConnected: true
-      })),
-      edges: connectedEdges,
-      metadata: {
-        totalNodes: nodes.length,
-        connectedNodes: connectedNodes.length,
-        isolatedNodes: nodes.length - connectedNodes.length,
-        timestamp: new Date().toISOString()
+      if (!res.ok) {
+        throw new Error(`Failed to create bot: ${res.status} ${res.statusText}`);
       }
-    };
 
-    console.log('Publishing connected data for product:', resolvedParams.id, allData);
+      const data = await res.json();
+      setBotUrl(data.url);
+      setShowBotDialog(true);
 
-    // Copy CSV to clipboard
-    navigator.clipboard.writeText(JSON.stringify(formattedOutput)).then(() => {
-      alert(`CSV data published and copied to clipboard!\\n\\nConnected nodes: ${connectedNodes.length}/${nodes.length}\\n\\nCheck browser console for detailed CSV output.`);
-    }).catch(() => {
-      alert(`CSV data published!\\n\\nConnected nodes: ${connectedNodes.length}/${nodes.length}\\n\\nCheck console for CSV output.`);
-    });
+      console.log('Bot created successfully:', data);
+    } catch (error: any) {
+      console.error('Error creating bot:', error);
+      setBotError(error.message || 'Failed to create bot');
+      alert(`Error creating bot: ${error.message || 'Please try again'}`);
+    } finally {
+      setIsCreatingBot(false);
+    }
   };
 
   // Helper function to check if publish is allowed
@@ -1143,15 +1146,24 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
               <button
                 onClick={publishData}
                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-all shadow-sm ${
-                  publishState.canPublish
+                  publishState.canPublish && !isCreatingBot
                     ? 'bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800'
                     : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                 }`}
-                disabled={!publishState.canPublish}
-                title={!publishState.canPublish ? publishState.reason : 'Publish connected components'}
+                disabled={!publishState.canPublish || isCreatingBot}
+                title={!publishState.canPublish ? publishState.reason : 'Create bot from connected components'}
               >
-                <Save className="w-4 h-4" />
-                Publish
+                {isCreatingBot ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating Bot...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Create Bot
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1208,6 +1220,56 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
           <Background gap={12} size={1} />
         </ReactFlow>
       </div>
+
+      {/* Bot Creation Success Dialog */}
+      <Dialog open={showBotDialog} onOpenChange={setShowBotDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              Bot Created Successfully!
+            </DialogTitle>
+            <DialogDescription>
+              Your bot has been created and is ready to use. Click the link below to access your bot.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4">
+            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-800 mb-2">
+                <strong>Bot URL:</strong>
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 px-2 py-1 text-xs bg-white border border-green-300 rounded text-green-700 break-all">
+                  {botUrl}
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigator.clipboard.writeText(botUrl)}
+                  className="shrink-0"
+                >
+                  Copy
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowBotDialog(false)}
+            >
+              Close
+            </Button>
+            <Button asChild>
+              <Link href={botUrl} target="_blank" rel="noopener noreferrer">
+                Go to Bot
+              </Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
