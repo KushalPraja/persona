@@ -1,0 +1,39 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" rx="32" fill="#111827"/>
+
+  <!-- Organized grid pattern - scaled up -->
+  <!-- Top section -->
+  <rect x="16" y="16" width="48" height="32" rx="8" fill="#3B82F6"/>
+  <rect x="72" y="16" width="48" height="32" rx="8" fill="#10B981"/>
+  <rect x="128" y="16" width="48" height="32" rx="8" fill="#8B5CF6"/>
+
+  <!-- Upper middle section -->
+  <rect x="16" y="56" width="32" height="40" rx="8" fill="#F59E0B"/>
+  <rect x="56" y="56" width="48" height="40" rx="8" fill="#EF4444"/>
+  <rect x="112" y="56" width="32" height="40" rx="8" fill="#06B6D4"/>
+  <rect x="152" y="56" width="24" height="40" rx="8" fill="#EC4899"/>
+
+  <!-- Lower middle section -->
+  <rect x="16" y="104" width="64" height="32" rx="8" fill="#84CC16"/>
+  <rect x="88" y="104" width="32" height="32" rx="8" fill="#F97316"/>
+  <rect x="128" y="104" width="48" height="32" rx="8" fill="#A855F7"/>
+
+  <!-- Bottom section -->
+  <rect x="16" y="144" width="96" height="24" rx="8" fill="#6366F1"/>
+  <rect x="120" y="144" width="56" height="24" rx="8" fill="#14B8A6"/>
+
+  <!-- Bottom accent -->
+  <rect x="16" y="176" width="160" height="8" rx="4" fill="url(#gradient1)"/>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="25%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="75%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

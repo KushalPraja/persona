@@ -1,0 +1,25 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="24" height="24" rx="4" fill="#111827"/>
+
+  <!-- Organized grid pattern - scaled down from 192 -->
+  <!-- Top section -->
+  <rect x="2" y="2" width="6" height="4" rx="1" fill="#3B82F6"/>
+  <rect x="9" y="2" width="6" height="4" rx="1" fill="#10B981"/>
+  <rect x="16" y="2" width="6" height="4" rx="1" fill="#8B5CF6"/>
+
+  <!-- Upper middle section -->
+  <rect x="2" y="7" width="4" height="5" rx="1" fill="#F59E0B"/>
+  <rect x="7" y="7" width="6" height="5" rx="1" fill="#EF4444"/>
+  <rect x="14" y="7" width="4" height="5" rx="1" fill="#06B6D4"/>
+  <rect x="19" y="7" width="3" height="5" rx="1" fill="#EC4899"/>
+
+  <!-- Lower middle section -->
+  <rect x="2" y="13" width="8" height="4" rx="1" fill="#84CC16"/>
+  <rect x="11" y="13" width="4" height="4" rx="1" fill="#F97316"/>
+  <rect x="16" y="13" width="6" height="4" rx="1" fill="#A855F7"/>
+
+  <!-- Bottom section -->
+  <rect x="2" y="18" width="12" height="3" rx="1" fill="#6366F1"/>
+  <rect x="15" y="18" width="7" height="3" rx="1" fill="#14B8A6"/>
+</svg>

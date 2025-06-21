@@ -1,0 +1,27 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#111827"/>
+
+  <!-- Connection lines (subtle) -->
+  <line x1="8" y1="12" x2="14" y2="12" stroke="#374151" stroke-width="1" opacity="0.6"/>
+  <line x1="18" y1="12" x2="24" y2="12" stroke="#374151" stroke-width="1" opacity="0.6"/>
+  <line x1="12" y1="8" x2="12" y2="14" stroke="#374151" stroke-width="1" opacity="0.6"/>
+  <line x1="20" y1="8" x2="20" y2="14" stroke="#374151" stroke-width="1" opacity="0.6"/>
+  <line x1="8" y1="20" x2="24" y2="20" stroke="#374151" stroke-width="1" opacity="0.6"/>
+
+  <!-- Organized component nodes -->
+  <!-- Top row - Core components -->
+  <rect x="4" y="4" width="6" height="6" rx="2" fill="#3B82F6"/>
+  <rect x="13" y="4" width="6" height="6" rx="2" fill="#10B981"/>
+  <rect x="22" y="4" width="6" height="6" rx="2" fill="#8B5CF6"/>
+
+  <!-- Middle row - Analysis components -->
+  <rect x="4" y="13" width="6" height="6" rx="2" fill="#F59E0B"/>
+  <rect x="13" y="13" width="6" height="6" rx="2" fill="#EF4444"/>
+  <rect x="22" y="13" width="6" height="6" rx="2" fill="#06B6D4"/>
+
+  <!-- Bottom row - Content components -->
+  <rect x="4" y="22" width="6" height="6" rx="2" fill="#84CC16"/>
+  <rect x="13" y="22" width="6" height="6" rx="2" fill="#F97316"/>
+  <rect x="22" y="22" width="6" height="6" rx="2" fill="#EC4899"/>
+</svg>
