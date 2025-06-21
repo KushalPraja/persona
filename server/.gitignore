@@ -1,3 +1,4 @@
-__pycache__/
-.venv/
 .env
+pnpm-lock.yaml
+
+node_modules/
