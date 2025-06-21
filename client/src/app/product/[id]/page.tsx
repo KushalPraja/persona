@@ -26,13 +26,27 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle, ImageIcon, Loader2, Package, Plus, Save, Upload, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, ImageIcon, Loader2, Package, Plus, Save, Upload, X, Settings, Hash } from 'lucide-react';
 import { uploadImageToBlob, isValidImageFile, formatFileSize, BlobUploadResult, deleteImageFromSupabase } from '@/lib/blob-storage';
 
 interface ProductData {
   name: string;
   description: string;
   extraText: string;
+}
+
+interface CustomField {
+  id: number;
+  key: string;
+  value: string;
+}
+
+interface CustomComponentType {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  fields: string[];
 }
 
 interface Issue {
@@ -526,11 +540,108 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
   );
 };
 
+// Custom Field Node Component
+const CustomFieldNode = ({ data, id }: { data: any; id: string }) => {
+  const [customFields, setCustomFields] = useState<CustomField[]>(data.customFields || []);
+
+  // Update local state when data prop changes (for localStorage restore)
+  React.useEffect(() => {
+    if (data.customFields) {
+      setCustomFields(data.customFields);
+    }
+  }, [data.customFields]);
+
+  const addCustomField = () => {
+    const newField: CustomField = {
+      id: Date.now(),
+      key: '',
+      value: ''
+    };
+    const updated = [...customFields, newField];
+    setCustomFields(updated);
+    data.onChange?.(id, { customFields: updated });
+  };
+
+  const updateCustomField = (fieldId: number, fieldType: 'key' | 'value', newValue: string) => {
+    const updated = customFields.map(field =>
+      field.id === fieldId ? { ...field, [fieldType]: newValue } : field
+    );
+    setCustomFields(updated);
+    data.onChange?.(id, { customFields: updated });
+  };
+
+  const removeCustomField = (fieldId: number) => {
+    const updated = customFields.filter(field => field.id !== fieldId);
+    setCustomFields(updated);
+    data.onChange?.(id, { customFields: updated });
+  };
+
+  return (
+    <div className="relative">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-4 !h-4 !bg-orange-500 !border-2 !border-white !shadow-md"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-4 !h-4 !bg-orange-500 !border-2 !border-white !shadow-md"
+      />
+
+      <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="bg-orange-50 border-b border-orange-100 px-4 py-3 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <Hash className="w-4 h-4 text-orange-500" />
+            <h3 className="text-sm font-medium text-gray-900">Custom Fields</h3>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {customFields.map((field) => (
+            <div key={field.id} className="border border-gray-200 rounded-lg p-3 space-y-2">
+              <div className="flex gap-2">
+                <input
+                  value={field.key}
+                  onChange={(e) => updateCustomField(field.id, 'key', e.target.value)}
+                  placeholder="Field name (e.g., Price, Weight, SKU)"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => removeCustomField(field.id)}
+                  className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+              <textarea
+                value={field.value}
+                onChange={(e) => updateCustomField(field.id, 'value', e.target.value)}
+                placeholder="Field value"
+                rows={2}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+              />
+            </div>
+          ))}
+          <button
+            onClick={addCustomField}
+            className="w-full flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            Add Custom Field
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const nodeTypes: NodeTypes = {
   productNode: ProductNode,
   issuesNode: IssuesNode,
   solutionsNode: SolutionsNode,
   imageDescriptionNode: ImageDescriptionNode,
+  customFieldNode: CustomFieldNode,
 };
 
 const initialNodes: Node[] = [
@@ -575,7 +686,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     tone?: string;
     prompt?: string;
   }>({});
-  
+
   // Bot creation states
   const [isCreatingBot, setIsCreatingBot] = useState(false);
   const [botUrl, setBotUrl] = useState("");
@@ -814,6 +925,17 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     setNodes((nds) => [...nds, newNode]);
   };
 
+  const addNewCustomField = () => {
+    const newNodeId = `custom-${Date.now()}`;
+    const newNode = {
+      id: newNodeId,
+      type: 'customFieldNode' as const,
+      position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 400 },
+      data: { customFields: [], onChange: handleNodeDataChange },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
   const publishData = async () => {
     // Get all connected node IDs by traversing edges
     const getConnectedNodes = () => {
@@ -1002,6 +1124,29 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
         }
       }
 
+      // Custom Fields Section
+      const customFieldNodes = connectedNodes.filter(node => node.type === 'customFieldNode');
+      console.log('Custom field nodes found:', customFieldNodes);
+
+      if (customFieldNodes.length > 0) {
+        let customFieldsContent = '';
+        customFieldNodes.forEach((node, nodeIndex) => {
+          const customFieldNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log(`Custom field node ${nodeIndex + 1} data:`, customFieldNodeData);
+
+          const customFields = customFieldNodeData.customFields || [];
+          customFields.forEach((field: any) => {
+            if (field.key && field.value) {
+              if (customFieldsContent) customFieldsContent += ' ';
+              customFieldsContent += `${field.key}: ${field.value}.`;
+            }
+          });
+        });
+        if (customFieldsContent) {
+          csv += `Custom Fields,"${escapeCSV(customFieldsContent.trim())}"\\r\\n`;
+        }
+      }
+
       console.log('=== DEBUG: Final CSV generated ===');
       return csv;
     };
@@ -1017,7 +1162,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       const res = await fetch("http://localhost:5000/api/bot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           csv: csvData,
           prompt: projectParams.prompt || `Generate documentation for ${projectParams.name || 'this product'}`,
           tone: projectParams.tone || 'professional'
@@ -1131,6 +1276,13 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
                   <ImageIcon className="w-4 h-4" />
                   Image
                 </button>
+                <button
+                  onClick={addNewCustomField}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                >
+                  <Hash className="w-4 h-4" />
+                  Custom Fields
+                </button>
               </div>
             </div>
 
@@ -1233,7 +1385,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
               Your bot has been created and is ready to use. Click the link below to access your bot.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex flex-col gap-4">
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <p className="text-sm text-green-800 mb-2">

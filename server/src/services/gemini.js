@@ -74,7 +74,7 @@ Tone: ${tone}`;
     });
 
     console.log(response.text);
-    
+
     const parsed = JSON.parse(response.text || "{}");
     if (parsed.graph && parsed.graph.nodes && parsed.graph.links) {
       graph = parsed.graph;
