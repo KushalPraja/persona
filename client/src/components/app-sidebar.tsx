@@ -6,6 +6,7 @@ import {
   User,
   FileText,
   Database,
+  Folder,
 } from "lucide-react";
 
 import {
@@ -22,11 +23,27 @@ import {
 } from "@/components/ui/sidebar";
 
 // Menu items
+// Menu items
 const items = [
   {
-    title: "Home",
+    title: "Dashboard",
     url: "/home",
     icon: Home,
+  },
+  {
+    title: "Templates",
+    url: "/home#templates",
+    icon: FileText,
+  },
+  {
+    title: "Recent Projects",
+    url: "/home#projects",
+    icon: Folder,
+  },
+  {
+    title: "Create Project",
+    url: "/home#create",
+    icon: Database,
   },
 ];
 
@@ -65,7 +82,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <div className="p-2 text-xs text-sidebar-foreground/70">
-          © 2025 Persona - SpurHacks
+          2025 Persona - SpurHacks
         </div>
       </SidebarFooter>
     </Sidebar>
