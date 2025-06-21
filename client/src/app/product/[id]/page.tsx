@@ -16,7 +16,7 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Plus, Save, AlertCircle, CheckCircle, Package, ImageIcon, Upload, X } from 'lucide-react';
+import { Plus, Save, AlertCircle, CheckCircle, Package, ImageIcon, Upload, X, ArrowLeft } from 'lucide-react';
 import { uploadImageToBlob, isValidImageFile, formatFileSize, BlobUploadResult, deleteImageFromSupabase } from '@/lib/blob-storage';
 
 interface ProductData {
@@ -560,9 +560,33 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
   const nodeDataRef = React.useRef<Record<string, any>>({});
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [projectParams, setProjectParams] = useState<{
+    name?: string;
+    tone?: string;
+    prompt?: string;
+  }>({});
 
   // Local storage key based on product ID
   const storageKey = `product-flow-${resolvedParams.id}`;
+
+  // Extract URL parameters on component mount
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const params = {
+        name: urlParams.get('name') || undefined,
+        tone: urlParams.get('tone') || undefined,
+        prompt: urlParams.get('prompt') || undefined,
+      };
+      setProjectParams(params);
+
+      // If we have a product name from URL params, initialize the first product node with it
+      if (params.name && !localStorage.getItem(storageKey)) {
+        // Only set initial data if there's no saved data
+        console.log('Initializing product with params:', params);
+      }
+    }
+  }, [resolvedParams.id, storageKey]);
 
   // Define handleNodeDataChange first so it can be used in useEffect
   const handleNodeDataChange = useCallback((nodeId: string, data: any) => {
@@ -620,13 +644,37 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
         if (parsed.edges) {
           setEdges(parsed.edges);
         }
+      } else if (projectParams.name) {
+        // No saved data but we have URL parameters - initialize first product node with them
+        console.log('Initializing with project params:', projectParams);
+        const initialProductData = {
+          name: projectParams.name,
+          description: projectParams.prompt || `${projectParams.name} - ${projectParams.tone || 'professional'} documentation`,
+          extraText: ''
+        };
+
+        // Update the first product node with URL parameters
+        setNodeData(prev => ({ ...prev, '1': { productData: initialProductData } }));
+        nodeDataRef.current['1'] = { productData: initialProductData };
+
+        // Update the first node's data
+        setNodes(prev => prev.map(node =>
+          node.id === '1' ? {
+            ...node,
+            data: {
+              ...node.data,
+              productData: initialProductData,
+              onChange: handleNodeDataChange
+            }
+          } : node
+        ));
       }
       setIsLoaded(true);
     } catch (error) {
       console.error('Error loading from localStorage:', error);
       setIsLoaded(true);
     }
-  }, [resolvedParams.id, handleNodeDataChange, setNodes, setEdges]);
+  }, [resolvedParams.id, handleNodeDataChange, setNodes, setEdges, projectParams]);
 
   // Save data to localStorage whenever nodes, edges, or nodeData changes
   React.useEffect(() => {
@@ -650,11 +698,33 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
       localStorage.setItem(storageKey, JSON.stringify(dataToSave));
       setLastSaved(new Date().toLocaleTimeString());
+
+      // Update the project's lastModified timestamp in the saved projects list
+      updateProjectLastModified(resolvedParams.id);
+
       console.log('Saved to localStorage:', dataToSave);
     } catch (error) {
       console.error('Error saving to localStorage:', error);
     }
-  }, [nodes, edges, nodeData, storageKey, isLoaded]);
+  }, [nodes, edges, nodeData, storageKey, isLoaded, resolvedParams.id]);
+
+  // Function to update project's lastModified timestamp
+  const updateProjectLastModified = (projectId: string) => {
+    try {
+      const saved = localStorage.getItem('persona-projects');
+      if (saved) {
+        const projects = JSON.parse(saved);
+        const updatedProjects = projects.map((project: any) =>
+          project.id === projectId
+            ? { ...project, lastModified: new Date().toISOString() }
+            : project
+        );
+        localStorage.setItem('persona-projects', JSON.stringify(updatedProjects));
+      }
+    } catch (error) {
+      console.error('Error updating project lastModified:', error);
+    }
+  };
 
   // Clear localStorage function
   const clearSavedData = () => {
@@ -995,74 +1065,131 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <div className="flex items-center justify-between p-4 bg-white border-b shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold">Product Flow Builder</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>Product ID: {resolvedParams.id}</span>
+      {/* Clean, hierarchical top bar */}
+      <div className="bg-white border-b">
+        {/* Main navigation and title */}
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Persona Logo */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => window.history.back()}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-md transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">P</span>
+                </div>
+                <span className="text-sm font-medium text-gray-600">Persona</span>
+              </div>
+
+              <div className="h-6 w-px bg-gray-200"></div>
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight">Product Flow Builder</h1>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Building blocks section - emphasized and prominent */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-900">Add Components</span>
+              <div className="flex gap-3">
+                <button
+                  onClick={addNewProduct}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Product
+                </button>
+                <button
+                  onClick={addNewIssues}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  Issues
+                </button>
+                <button
+                  onClick={addNewSolutions}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Solutions
+                </button>
+                <button
+                  onClick={addNewImageDescription}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  Image
+                </button>
+              </div>
+            </div>
+
+            {/* Action buttons - positioned on the right */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={clearSavedData}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 bg-white border border-gray-200 hover:border-red-200 rounded-lg transition-all shadow-sm"
+              >
+                <X className="w-4 h-4" />
+                Clear
+              </button>
+              <button
+                onClick={publishData}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-all shadow-sm ${
+                  publishState.canPublish
+                    ? 'bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800'
+                    : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                }`}
+                disabled={!publishState.canPublish}
+                title={!publishState.canPublish ? publishState.reason : 'Publish connected components'}
+              >
+                <Save className="w-4 h-4" />
+                Publish
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Status info - small and subtle */}
+        <div className="px-6 pb-3 border-t border-gray-50">
+          <div className="flex items-center gap-4 pt-3 text-xs text-gray-400">
+            <span>ID: {resolvedParams.id}</span>
+            {projectParams.name && (
+              <>
+                <span>•</span>
+                <span>{projectParams.name}</span>
+              </>
+            )}
+            {projectParams.tone && (
+              <>
+                <span>•</span>
+                <span>{projectParams.tone}</span>
+              </>
+            )}
             <span>•</span>
-            <span>Nodes: {nodes.length}</span>
+            <span>{nodes.length} nodes</span>
             <span>•</span>
-            <span>Connections: {edges.length}</span>
+            <span>{edges.length} connections</span>
             {lastSaved && (
               <>
                 <span>•</span>
-                <span className="text-green-600">✓ Saved at {lastSaved}</span>
+                <span className="text-green-500">Saved {lastSaved}</span>
               </>
             )}
             {!publishState.canPublish && (
-              <span className="text-amber-600 font-medium">⚠ {publishState.reason}</span>
+              <>
+                <span>•</span>
+                <span className="text-amber-500 font-medium">{publishState.reason}</span>
+              </>
             )}
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={clearSavedData}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors"
-          >
-            <X className="w-4 h-4" />
-            Clear Data
-          </button>
-          <button
-            onClick={addNewProduct}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Product
-          </button>
-          <button
-            onClick={addNewIssues}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <AlertCircle className="w-4 h-4" />
-            Issues
-          </button>
-          <button
-            onClick={addNewSolutions}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <CheckCircle className="w-4 h-4" />
-            Solutions
-          </button>
-          <button
-            onClick={addNewImageDescription}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ImageIcon className="w-4 h-4" />
-            Image
-          </button>
-          <button
-            onClick={publishData}
-            className={`flex items-center gap-1 px-3 py-2 text-sm font-medium text-white rounded-md transition-colors ${
-              publishState.canPublish
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
-            disabled={!publishState.canPublish}
-          >
-            <Save className="w-4 h-4" />
-            Publish Connected ({publishState.connectedCount || 0})
-          </button>
         </div>
       </div>
 
