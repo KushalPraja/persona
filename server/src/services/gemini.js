@@ -6,26 +6,11 @@ const { GoogleGenAI } = require("@google/genai");
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-function parseCSV(csvString) {
-  const parsed = Papa.parse(csvString, { header: true });
-  return parsed.data;
-}
-
-function buildContextFromCSV(csvData) {
-  let context = "";
-  for (const row of csvData) {
-    if (!row.Field || !row.Value) continue;
-    context += `- ${row.Field}: ${row.Value}\n`;
-  }
-  return context;
-}
 
 async function createBot({ csv, prompt, tone }) {
-  const csvData = parseCSV(csv);
-  const context = buildContextFromCSV(csvData);
+  const context = csv;
   const id = uuidv4();
 
-  // Ask Gemini to generate a graph and FAQ based on context
   let graph = { nodes: [], links: [] };
   let faqs = [];
   try {

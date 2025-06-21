@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   Controls,
@@ -14,8 +14,8 @@ import {
   NodeTypes,
   Handle,
   Position,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import {
   Dialog,
   DialogContent,
@@ -70,18 +70,18 @@ interface ImageData {
 // Product Node Component
 const ProductNode = ({ data, id }: { data: any; id: string }) => {
   const [productData, setProductData] = useState<ProductData>({
-    name: data.productData?.name || '',
-    description: data.productData?.description || '',
-    extraText: data.productData?.extraText || ''
+    name: data.productData?.name || "",
+    description: data.productData?.description || "",
+    extraText: data.productData?.extraText || "",
   });
 
   // Update local state when data prop changes (for localStorage restore)
   React.useEffect(() => {
     if (data.productData) {
       setProductData({
-        name: data.productData.name || '',
-        description: data.productData.description || '',
-        extraText: data.productData.extraText || ''
+        name: data.productData.name || "",
+        description: data.productData.description || "",
+        extraText: data.productData.extraText || "",
       });
     }
   }, [data.productData]);
@@ -125,7 +125,7 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
           <div className="space-y-2">
             <input
               value={productData.name}
-              onChange={(e) => updateField('name', e.target.value)}
+              onChange={(e) => updateField("name", e.target.value)}
               placeholder="Product name"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -134,7 +134,7 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
           <div className="space-y-2">
             <textarea
               value={productData.description}
-              onChange={(e) => updateField('description', e.target.value)}
+              onChange={(e) => updateField("description", e.target.value)}
               placeholder="Describe your product"
               rows={2}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -144,7 +144,7 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
           <div className="space-y-2">
             <textarea
               value={productData.extraText}
-              onChange={(e) => updateField('extraText', e.target.value)}
+              onChange={(e) => updateField("extraText", e.target.value)}
               placeholder="Additional details, features, specifications..."
               rows={2}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -170,16 +170,20 @@ const IssuesNode = ({ data, id }: { data: any; id: string }) => {
   const addIssue = () => {
     const newIssue: Issue = {
       id: Date.now(),
-      title: '',
-      description: ''
+      title: "",
+      description: "",
     };
     const updated = [...issues, newIssue];
     setIssues(updated);
     data.onChange?.(id, { issues: updated });
   };
 
-  const updateIssue = (issueId: number, field: keyof Omit<Issue, 'id'>, value: string) => {
-    const updated = issues.map(issue =>
+  const updateIssue = (
+    issueId: number,
+    field: keyof Omit<Issue, "id">,
+    value: string
+  ) => {
+    const updated = issues.map((issue) =>
       issue.id === issueId ? { ...issue, [field]: value } : issue
     );
     setIssues(updated);
@@ -187,7 +191,7 @@ const IssuesNode = ({ data, id }: { data: any; id: string }) => {
   };
 
   const removeIssue = (issueId: number) => {
-    const updated = issues.filter(issue => issue.id !== issueId);
+    const updated = issues.filter((issue) => issue.id !== issueId);
     setIssues(updated);
     data.onChange?.(id, { issues: updated });
   };
@@ -215,16 +219,21 @@ const IssuesNode = ({ data, id }: { data: any; id: string }) => {
 
         <div className="p-4 space-y-3">
           {issues.map((issue) => (
-            <div key={issue.id} className="border border-gray-200 rounded-lg p-3 space-y-2">
+            <div
+              key={issue.id}
+              className="border border-gray-200 rounded-lg p-3 space-y-2"
+            >
               <input
-                value={issue.title || ''}
-                onChange={(e) => updateIssue(issue.id, 'title', e.target.value)}
+                value={issue.title || ""}
+                onChange={(e) => updateIssue(issue.id, "title", e.target.value)}
                 placeholder="Issue title"
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
               <textarea
-                value={issue.description || ''}
-                onChange={(e) => updateIssue(issue.id, 'description', e.target.value)}
+                value={issue.description || ""}
+                onChange={(e) =>
+                  updateIssue(issue.id, "description", e.target.value)
+                }
                 placeholder="Describe the issue"
                 rows={2}
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
@@ -264,17 +273,21 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
   const addSolution = () => {
     const newSolution: Solution = {
       id: Date.now(),
-      title: '',
-      description: '',
-      steps: ['']
+      title: "",
+      description: "",
+      steps: [""],
     };
     const updated = [...solutions, newSolution];
     setSolutions(updated);
     data.onChange?.(id, { solutions: updated });
   };
 
-  const updateSolution = (solutionId: number, field: keyof Omit<Solution, 'id'>, value: any) => {
-    const updated = solutions.map(solution =>
+  const updateSolution = (
+    solutionId: number,
+    field: keyof Omit<Solution, "id">,
+    value: any
+  ) => {
+    const updated = solutions.map((solution) =>
       solution.id === solutionId ? { ...solution, [field]: value } : solution
     );
     setSolutions(updated);
@@ -282,9 +295,9 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
   };
 
   const addStep = (solutionId: number) => {
-    const updated = solutions.map(solution =>
+    const updated = solutions.map((solution) =>
       solution.id === solutionId
-        ? { ...solution, steps: [...solution.steps, ''] }
+        ? { ...solution, steps: [...solution.steps, ""] }
         : solution
     );
     setSolutions(updated);
@@ -292,11 +305,13 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
   };
 
   const updateStep = (solutionId: number, stepIndex: number, value: string) => {
-    const updated = solutions.map(solution =>
+    const updated = solutions.map((solution) =>
       solution.id === solutionId
         ? {
             ...solution,
-            steps: solution.steps.map((step, idx) => idx === stepIndex ? value : step)
+            steps: solution.steps.map((step, idx) =>
+              idx === stepIndex ? value : step
+            ),
           }
         : solution
     );
@@ -327,27 +342,38 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
 
         <div className="p-4 space-y-3">
           {solutions.map((solution) => (
-            <div key={solution.id} className="border border-gray-200 rounded-lg p-3 space-y-2">
+            <div
+              key={solution.id}
+              className="border border-gray-200 rounded-lg p-3 space-y-2"
+            >
               <input
                 value={solution.title}
-                onChange={(e) => updateSolution(solution.id, 'title', e.target.value)}
+                onChange={(e) =>
+                  updateSolution(solution.id, "title", e.target.value)
+                }
                 placeholder="Solution title"
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
               <textarea
                 value={solution.description}
-                onChange={(e) => updateSolution(solution.id, 'description', e.target.value)}
+                onChange={(e) =>
+                  updateSolution(solution.id, "description", e.target.value)
+                }
                 placeholder="Describe the solution"
                 rows={2}
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
               />
               <div>
-                <label className="text-xs font-medium text-gray-600">Steps:</label>
+                <label className="text-xs font-medium text-gray-600">
+                  Steps:
+                </label>
                 {solution.steps.map((step, stepIdx) => (
                   <input
                     key={stepIdx}
                     value={step}
-                    onChange={(e) => updateStep(solution.id, stepIdx, e.target.value)}
+                    onChange={(e) =>
+                      updateStep(solution.id, stepIdx, e.target.value)
+                    }
                     placeholder={`Step ${stepIdx + 1}`}
                     className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
@@ -379,7 +405,7 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
 const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
   const [imageData, setImageData] = useState<ImageData>({
     image: data.imageData?.image || null,
-    description: data.imageData?.description || ''
+    description: data.imageData?.description || "",
   });
   const [isUploading, setIsUploading] = useState(false);
 
@@ -388,7 +414,7 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
     if (data.imageData) {
       setImageData({
         image: data.imageData.image || null,
-        description: data.imageData.description || ''
+        description: data.imageData.description || "",
       });
     }
   }, [data.imageData]);
@@ -399,51 +425,57 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
     data.onChange?.(id, { imageData: updated });
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!isValidImageFile(file)) {
-      alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+      alert("Please select a valid image file (JPEG, PNG, GIF, WebP)");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      alert('Image size must be less than 5MB');
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      alert("Image size must be less than 5MB");
       return;
     }
 
     setIsUploading(true);
     try {
-      console.log('Starting upload for file:', file.name, 'Size:', file.size);
+      console.log("Starting upload for file:", file.name, "Size:", file.size);
       const uploadResult = await uploadImageToBlob(file);
-      console.log('Upload completed:', uploadResult);
+      console.log("Upload completed:", uploadResult);
 
       const updated = { ...imageData, image: uploadResult };
       setImageData(updated);
       data.onChange?.(id, { imageData: updated });
     } catch (error) {
-      console.error('Detailed upload error:', error);
+      console.error("Detailed upload error:", error);
 
       // More specific error messages
-      let errorMessage = 'Failed to upload image. ';
+      let errorMessage = "Failed to upload image. ";
       if (error instanceof Error) {
-        if (error.message.includes('bucket')) {
-          errorMessage += 'Storage bucket not found. Please create an "images" bucket in your Supabase project.';
-        } else if (error.message.includes('policy')) {
-          errorMessage += 'Permission denied. Please check your Supabase storage policies.';
+        if (error.message.includes("bucket")) {
+          errorMessage +=
+            'Storage bucket not found. Please create an "images" bucket in your Supabase project.';
+        } else if (error.message.includes("policy")) {
+          errorMessage +=
+            "Permission denied. Please check your Supabase storage policies.";
         } else {
           errorMessage += error.message;
         }
       } else {
-        errorMessage += 'Please check your Supabase configuration and try again.';
+        errorMessage +=
+          "Please check your Supabase configuration and try again.";
       }
 
       alert(errorMessage);
     } finally {
       setIsUploading(false);
       // Reset file input
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -452,7 +484,7 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
       try {
         await deleteImageFromSupabase(imageData.image.path);
       } catch (error) {
-        console.error('Error deleting image from Supabase:', error);
+        console.error("Error deleting image from Supabase:", error);
         // Continue with local removal even if cloud deletion fails
       }
     }
@@ -478,7 +510,9 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
         <div className="bg-purple-50 border-b border-purple-100 px-4 py-3 rounded-t-lg">
           <div className="flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-purple-500" />
-            <h3 className="text-sm font-medium text-gray-900">Image + Description</h3>
+            <h3 className="text-sm font-medium text-gray-900">
+              Image + Description
+            </h3>
           </div>
         </div>
 
@@ -518,7 +552,8 @@ const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
                   <X className="w-3 h-3 text-gray-600" />
                 </button>
                 <div className="mt-2 text-xs text-gray-500">
-                  {imageData.image.name} ({formatFileSize(imageData.image.size)})
+                  {imageData.image.name} ({formatFileSize(imageData.image.size)}
+                  )
                 </div>
               </div>
             )}
@@ -646,26 +681,26 @@ const nodeTypes: NodeTypes = {
 
 const initialNodes: Node[] = [
   {
-    id: '1',
-    type: 'productNode',
+    id: "1",
+    type: "productNode",
     position: { x: 100, y: 100 },
     data: { productData: {} },
   },
   {
-    id: '2',
-    type: 'issuesNode',
+    id: "2",
+    type: "issuesNode",
     position: { x: 450, y: 50 },
     data: { issues: [] },
   },
   {
-    id: '3',
-    type: 'solutionsNode',
+    id: "3",
+    type: "solutionsNode",
     position: { x: 450, y: 300 },
     data: { solutions: [] },
   },
   {
-    id: '4',
-    type: 'imageDescriptionNode',
+    id: "4",
+    type: "imageDescriptionNode",
     position: { x: 450, y: 550 },
     data: { imageData: {} },
   },
@@ -675,7 +710,11 @@ const initialEdges: Edge[] = [];
 
 // Only nodes that are connected via edges will be published
 
-export default function ProductFlowPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ProductFlowPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const resolvedParams = React.use(params);
   const [nodeData, setNodeData] = useState<Record<string, any>>({});
   const nodeDataRef = React.useRef<Record<string, any>>({});
@@ -686,6 +725,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     tone?: string;
     prompt?: string;
   }>({});
+
 
   // Bot creation states
   const [isCreatingBot, setIsCreatingBot] = useState(false);
@@ -698,19 +738,19 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
   // Extract URL parameters on component mount
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const params = {
-        name: urlParams.get('name') || undefined,
-        tone: urlParams.get('tone') || undefined,
-        prompt: urlParams.get('prompt') || undefined,
+        name: urlParams.get("name") || undefined,
+        tone: urlParams.get("tone") || undefined,
+        prompt: urlParams.get("prompt") || undefined,
       };
       setProjectParams(params);
 
       // If we have a product name from URL params, initialize the first product node with it
       if (params.name && !localStorage.getItem(storageKey)) {
         // Only set initial data if there's no saved data
-        console.log('Initializing product with params:', params);
+        console.log("Initializing product with params:", params);
       }
     }
   }, [resolvedParams.id, storageKey]);
@@ -718,17 +758,17 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
   // Define handleNodeDataChange first so it can be used in useEffect
   const handleNodeDataChange = useCallback((nodeId: string, data: any) => {
     console.log(`=== Node data change for ${nodeId} ===`, data);
-    setNodeData(prev => {
+    setNodeData((prev) => {
       const updated = { ...prev, [nodeId]: data };
       nodeDataRef.current = updated;
       return updated;
     });
-    console.log('Updated nodeDataRef:', nodeDataRef.current);
+    console.log("Updated nodeDataRef:", nodeDataRef.current);
   }, []);
 
   // Initialize nodes and edges with proper data structure
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    initialNodes.map(node => ({
+    initialNodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
@@ -744,7 +784,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       const savedData = localStorage.getItem(storageKey);
       if (savedData) {
         const parsed = JSON.parse(savedData);
-        console.log('Loading saved data from localStorage:', parsed);
+        console.log("Loading saved data from localStorage:", parsed);
 
         // Restore nodeData first
         if (parsed.nodeData) {
@@ -773,35 +813,52 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
         }
       } else if (projectParams.name) {
         // No saved data but we have URL parameters - initialize first product node with them
-        console.log('Initializing with project params:', projectParams);
+        console.log("Initializing with project params:", projectParams);
         const initialProductData = {
           name: projectParams.name,
-          description: projectParams.prompt || `${projectParams.name} - ${projectParams.tone || 'professional'} documentation`,
-          extraText: ''
+          description:
+            projectParams.prompt ||
+            `${projectParams.name} - ${
+              projectParams.tone || "professional"
+            } documentation`,
+          extraText: "",
         };
 
         // Update the first product node with URL parameters
-        setNodeData(prev => ({ ...prev, '1': { productData: initialProductData } }));
-        nodeDataRef.current['1'] = { productData: initialProductData };
+        setNodeData((prev) => ({
+          ...prev,
+          "1": { productData: initialProductData },
+        }));
+        nodeDataRef.current["1"] = { productData: initialProductData };
 
         // Update the first node's data
-        setNodes(prev => prev.map(node =>
-          node.id === '1' ? {
-            ...node,
-            data: {
-              ...node.data,
-              productData: initialProductData,
-              onChange: handleNodeDataChange
-            }
-          } : node
-        ));
+        setNodes((prev) =>
+          prev.map((node) =>
+            node.id === "1"
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    productData: initialProductData,
+                    onChange: handleNodeDataChange,
+                  },
+                }
+              : node
+          )
+        );
       }
       setIsLoaded(true);
     } catch (error) {
-      console.error('Error loading from localStorage:', error);
+      console.error("Error loading from localStorage:", error);
       setIsLoaded(true);
     }
-  }, [resolvedParams.id, handleNodeDataChange, setNodes, setEdges, projectParams]);
+  }, [
+    resolvedParams.id,
+    handleNodeDataChange,
+    setNodes,
+    setEdges,
+    projectParams,
+  ]);
 
   // Save data to localStorage whenever nodes, edges, or nodeData changes
   React.useEffect(() => {
@@ -809,18 +866,18 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
     try {
       const dataToSave = {
-        nodes: nodes.map(node => ({
+        nodes: nodes.map((node) => ({
           ...node,
           data: {
             // Remove the onChange function but keep all other data
             ...Object.fromEntries(
-              Object.entries(node.data).filter(([key]) => key !== 'onChange')
-            )
-          }
+              Object.entries(node.data).filter(([key]) => key !== "onChange")
+            ),
+          },
         })),
         edges,
         nodeData: nodeDataRef.current,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       localStorage.setItem(storageKey, JSON.stringify(dataToSave));
@@ -829,16 +886,16 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       // Update the project's lastModified timestamp in the saved projects list
       updateProjectLastModified(resolvedParams.id);
 
-      console.log('Saved to localStorage:', dataToSave);
+      console.log("Saved to localStorage:", dataToSave);
     } catch (error) {
-      console.error('Error saving to localStorage:', error);
+      console.error("Error saving to localStorage:", error);
     }
   }, [nodes, edges, nodeData, storageKey, isLoaded, resolvedParams.id]);
 
   // Function to update project's lastModified timestamp
   const updateProjectLastModified = (projectId: string) => {
     try {
-      const saved = localStorage.getItem('persona-projects');
+      const saved = localStorage.getItem("persona-projects");
       if (saved) {
         const projects = JSON.parse(saved);
         const updatedProjects = projects.map((project: any) =>
@@ -846,10 +903,13 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
             ? { ...project, lastModified: new Date().toISOString() }
             : project
         );
-        localStorage.setItem('persona-projects', JSON.stringify(updatedProjects));
+        localStorage.setItem(
+          "persona-projects",
+          JSON.stringify(updatedProjects)
+        );
       }
     } catch (error) {
-      console.error('Error updating project lastModified:', error);
+      console.error("Error updating project lastModified:", error);
     }
   };
 
@@ -858,21 +918,23 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     try {
       localStorage.removeItem(storageKey);
       // Reset to initial state
-      setNodes(initialNodes.map(node => ({
-        ...node,
-        data: {
-          ...node.data,
-          onChange: handleNodeDataChange,
-        },
-      })));
+      setNodes(
+        initialNodes.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            onChange: handleNodeDataChange,
+          },
+        }))
+      );
       setEdges(initialEdges);
       setNodeData({});
       nodeDataRef.current = {};
       setLastSaved(null);
-      alert('Saved data cleared! Page reset to initial state.');
+      alert("Saved data cleared! Page reset to initial state.");
     } catch (error) {
-      console.error('Error clearing localStorage:', error);
-      alert('Error clearing saved data.');
+      console.error("Error clearing localStorage:", error);
+      alert("Error clearing saved data.");
     }
   };
 
@@ -885,7 +947,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     const newNodeId = `product-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: 'productNode' as const,
+      type: "productNode" as const,
       position: { x: Math.random() * 200 + 100, y: Math.random() * 200 + 100 },
       data: { productData: {}, onChange: handleNodeDataChange },
     };
@@ -896,7 +958,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     const newNodeId = `issues-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: 'issuesNode' as const,
+      type: "issuesNode" as const,
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 50 },
       data: { issues: [], onChange: handleNodeDataChange },
     };
@@ -907,7 +969,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     const newNodeId = `solutions-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: 'solutionsNode' as const,
+      type: "solutionsNode" as const,
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 300 },
       data: { solutions: [], onChange: handleNodeDataChange },
     };
@@ -918,7 +980,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     const newNodeId = `image-${Date.now()}`;
     const newNode = {
       id: newNodeId,
-      type: 'imageDescriptionNode' as const,
+      type: "imageDescriptionNode" as const,
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 550 },
       data: { imageData: {}, onChange: handleNodeDataChange },
     };
@@ -943,13 +1005,17 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       const nodeGroups: string[][] = [];
 
       // Find all connected components
-      edges.forEach(edge => {
+      edges.forEach((edge) => {
         connectedNodeIds.add(edge.source);
         connectedNodeIds.add(edge.target);
 
         // Find existing group or create new one
-        let sourceGroup = nodeGroups.find(group => group.includes(edge.source));
-        let targetGroup = nodeGroups.find(group => group.includes(edge.target));
+        let sourceGroup = nodeGroups.find((group) =>
+          group.includes(edge.source)
+        );
+        let targetGroup = nodeGroups.find((group) =>
+          group.includes(edge.target)
+        );
 
         if (!sourceGroup && !targetGroup) {
           // Create new group
@@ -974,80 +1040,110 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
     const { connectedNodeIds, nodeGroups } = getConnectedNodes();
 
     if (connectedNodeIds.size === 0) {
-      alert('No connected nodes found! Please connect nodes with edges before publishing.');
+      alert(
+        "No connected nodes found! Please connect nodes with edges before publishing."
+      );
       return;
     }
 
     // Check if there's a connected Product node
-    const connectedNodes = nodes.filter(node => connectedNodeIds.has(node.id));
-    const hasConnectedProductNode = connectedNodes.some(node => node.type === 'productNode');
+    const connectedNodes = nodes.filter((node) =>
+      connectedNodeIds.has(node.id)
+    );
+    const hasConnectedProductNode = connectedNodes.some(
+      (node) => node.type === "productNode"
+    );
 
     if (!hasConnectedProductNode) {
-      alert('A Product node is required for publishing! Please connect at least one Product node to other nodes.');
+      alert(
+        "A Product node is required for publishing! Please connect at least one Product node to other nodes."
+      );
       return;
     }
 
     // Generate clean CSV format - more paragraph-like
     const generateCSV = () => {
-      let csv = 'Section,Content\\r\\n';
+      let csv = 'Section,Content\r\n';
 
       // Helper function to escape CSV values
       const escapeCSV = (value: string) => {
-        if (!value) return '';
-        // If value contains comma, newline, or quote, wrap in quotes and escape internal quotes
-        if (value.includes(',') || value.includes('\\r') || value.includes('\\n') || value.includes('"')) {
+        if (!value) return "";
+        if (
+          value.includes(",") ||
+          value.includes("\r") ||
+          value.includes("\n") ||
+          value.includes('"')
+        ) {
           return `"${value.replace(/"/g, '""')}"`;
         }
         return value;
       };
 
-      console.log('=== DEBUG: Node data being processed ===');
-      console.log('Connected nodes:', connectedNodes);
-      console.log('Node data ref:', nodeDataRef.current);
+      console.log("=== DEBUG: Node data being processed ===");
+      console.log("Connected nodes:", connectedNodes);
+      console.log("Node data ref:", nodeDataRef.current);
 
       // Get product data - check multiple sources
-      const productNode = connectedNodes.find(node => node.type === 'productNode');
-      console.log('Product node found:', productNode);
+      const productNode = connectedNodes.find(
+        (node) => node.type === "productNode"
+      );
+      console.log("Product node found:", productNode);
 
       let productData = null;
       if (productNode) {
         // Try multiple ways to get the data
-        productData = nodeDataRef.current[productNode.id] ||
-                     productNode.data ||
-                     nodeData[productNode.id] || {};
-        console.log('Product data extracted:', productData);
+        productData =
+          nodeDataRef.current[productNode.id] ||
+          productNode.data ||
+          nodeData[productNode.id] ||
+          {};
+        console.log("Product data extracted:", productData);
       }
 
       // Product Overview Section
-      let productOverview = '';
+      let productOverview = "";
       if (productData && productData.productData) {
-        const name = productData.productData.name || 'Untitled Product';
-        const description = productData.productData.description || '';
-        const details = productData.productData.extraText || '';
+        const name = productData.productData.name || "Untitled Product";
+        const description = productData.productData.description || "";
+        const details = productData.productData.extraText || "";
 
         productOverview = `Product: ${name}. `;
         if (description) productOverview += `Description: ${description}. `;
         if (details) productOverview += `Additional Details: ${details}. `;
-        productOverview += `Product ID: ${resolvedParams.id}. Created: ${new Date().toISOString().split('T')[0]}. Connected Components: ${connectedNodes.length}.`;
+        productOverview += `Product ID: ${resolvedParams.id}. Created: ${
+          new Date().toISOString().split("T")[0]
+        }. Connected Components: ${connectedNodes.length}.`;
       } else {
-        productOverview = `Product: Untitled Product. Product ID: ${resolvedParams.id}. Created: ${new Date().toISOString().split('T')[0]}. Connected Components: ${connectedNodes.length}. (No product data available)`;
+        productOverview = `Product: Untitled Product. Product ID: ${
+          resolvedParams.id
+        }. Created: ${
+          new Date().toISOString().split("T")[0]
+        }. Connected Components: ${
+          connectedNodes.length
+        }. (No product data available)`;
       }
 
       csv += `Product Overview,"${escapeCSV(productOverview)}"\\r\\n`;
 
       // Images Section
-      const imageNodes = connectedNodes.filter(node => node.type === 'imageDescriptionNode');
-      console.log('Image nodes found:', imageNodes);
+      const imageNodes = connectedNodes.filter(
+        (node) => node.type === "imageDescriptionNode"
+      );
+      console.log("Image nodes found:", imageNodes);
 
       if (imageNodes.length > 0) {
-        let imagesContent = '';
+        let imagesContent = "";
         imageNodes.forEach((node, index) => {
-          const imageNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          const imageNodeData =
+            nodeDataRef.current[node.id] ||
+            node.data ||
+            nodeData[node.id] ||
+            {};
           console.log(`Image node ${index + 1} data:`, imageNodeData);
 
           const imageData = imageNodeData.imageData || {};
           if (imageData) {
-            if (index > 0) imagesContent += ' ';
+            if (index > 0) imagesContent += " ";
             imagesContent += `Image ${index + 1}: `;
             if (imageData.image?.url) {
               imagesContent += `Available at ${imageData.image.url}. `;
@@ -1063,20 +1159,26 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       }
 
       // Common Issues Section
-      const issueNodes = connectedNodes.filter(node => node.type === 'issuesNode');
-      console.log('Issue nodes found:', issueNodes);
+      const issueNodes = connectedNodes.filter(
+        (node) => node.type === "issuesNode"
+      );
+      console.log("Issue nodes found:", issueNodes);
 
       if (issueNodes.length > 0) {
-        let issuesContent = '';
+        let issuesContent = "";
         let issueCounter = 1;
-        issueNodes.forEach(node => {
-          const issueNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
-          console.log('Issue node data:', issueNodeData);
+        issueNodes.forEach((node) => {
+          const issueNodeData =
+            nodeDataRef.current[node.id] ||
+            node.data ||
+            nodeData[node.id] ||
+            {};
+          console.log("Issue node data:", issueNodeData);
 
           const issues = issueNodeData.issues || [];
           issues.forEach((issue: any) => {
             if (issue.title) {
-              if (issuesContent) issuesContent += ' ';
+              if (issuesContent) issuesContent += " ";
               issuesContent += `Issue ${issueCounter}: ${issue.title}.`;
               if (issue.description) {
                 issuesContent += ` ${issue.description}.`;
@@ -1091,28 +1193,36 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       }
 
       // Solutions Section
-      const solutionNodes = connectedNodes.filter(node => node.type === 'solutionsNode');
-      console.log('Solution nodes found:', solutionNodes);
+      const solutionNodes = connectedNodes.filter(
+        (node) => node.type === "solutionsNode"
+      );
+      console.log("Solution nodes found:", solutionNodes);
 
       if (solutionNodes.length > 0) {
-        let solutionsContent = '';
+        let solutionsContent = "";
         let solutionCounter = 1;
-        solutionNodes.forEach(node => {
-          const solutionNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
-          console.log('Solution node data:', solutionNodeData);
+        solutionNodes.forEach((node) => {
+          const solutionNodeData =
+            nodeDataRef.current[node.id] ||
+            node.data ||
+            nodeData[node.id] ||
+            {};
+          console.log("Solution node data:", solutionNodeData);
 
           const solutions = solutionNodeData.solutions || [];
           solutions.forEach((solution: any) => {
             if (solution.title) {
-              if (solutionsContent) solutionsContent += ' ';
+              if (solutionsContent) solutionsContent += " ";
               solutionsContent += `Solution ${solutionCounter}: ${solution.title}.`;
               if (solution.description) {
                 solutionsContent += ` ${solution.description}.`;
               }
               if (solution.steps && solution.steps.length > 0) {
-                const steps = solution.steps.filter((step: string) => step.trim());
+                const steps = solution.steps.filter((step: string) =>
+                  step.trim()
+                );
                 if (steps.length > 0) {
-                  solutionsContent += ` Steps: ${steps.join(', ')}.`;
+                  solutionsContent += ` Steps: ${steps.join(", ")}.`;
                 }
               }
               solutionCounter++;
@@ -1120,7 +1230,9 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
           });
         });
         if (solutionsContent) {
-          csv += `Solutions and Troubleshooting,"${escapeCSV(solutionsContent.trim())}"\\r\\n`;
+          csv += `Solutions and Troubleshooting,"${escapeCSV(
+            solutionsContent.trim()
+          )}"\\r\\n`;
         }
       }
 
@@ -1164,24 +1276,30 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           csv: csvData,
-          prompt: projectParams.prompt || `Generate documentation for ${projectParams.name || 'this product'}`,
-          tone: projectParams.tone || 'professional'
+          prompt:
+            projectParams.prompt ||
+            `Generate documentation for ${
+              projectParams.name || "this product"
+            }`,
+          tone: projectParams.tone || "professional",
         }),
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to create bot: ${res.status} ${res.statusText}`);
+        throw new Error(
+          `Failed to create bot: ${res.status} ${res.statusText}`
+        );
       }
 
       const data = await res.json();
       setBotUrl(data.url);
       setShowBotDialog(true);
 
-      console.log('Bot created successfully:', data);
+      console.log("Bot created successfully:", data);
     } catch (error: any) {
-      console.error('Error creating bot:', error);
-      setBotError(error.message || 'Failed to create bot');
-      alert(`Error creating bot: ${error.message || 'Please try again'}`);
+      console.error("Error creating bot:", error);
+      setBotError(error.message || "Failed to create bot");
+      alert(`Error creating bot: ${error.message || "Please try again"}`);
     } finally {
       setIsCreatingBot(false);
     }
@@ -1190,23 +1308,25 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
   // Helper function to check if publish is allowed
   const getPublishState = () => {
     if (edges.length === 0) {
-      return { canPublish: false, reason: 'No connections' };
+      return { canPublish: false, reason: "No connections" };
     }
 
     const connectedIds = new Set<string>();
-    edges.forEach(edge => {
+    edges.forEach((edge) => {
       connectedIds.add(edge.source);
       connectedIds.add(edge.target);
     });
 
-    const connectedNodes = nodes.filter(node => connectedIds.has(node.id));
-    const hasConnectedProductNode = connectedNodes.some(node => node.type === 'productNode');
+    const connectedNodes = nodes.filter((node) => connectedIds.has(node.id));
+    const hasConnectedProductNode = connectedNodes.some(
+      (node) => node.type === "productNode"
+    );
 
     if (!hasConnectedProductNode) {
-      return { canPublish: false, reason: 'No Product node connected' };
+      return { canPublish: false, reason: "No Product node connected" };
     }
 
-    return { canPublish: true, reason: '', connectedCount: connectedIds.size };
+    return { canPublish: true, reason: "", connectedCount: connectedIds.size };
   };
 
   const publishState = getPublishState();
@@ -1230,13 +1350,16 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
                 <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">P</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600">Persona</span>
+                <span className="text-sm font-medium text-gray-600">
+                  Persona
+                </span>
               </div>
 
               <div className="h-6 w-px bg-gray-200"></div>
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Product Flow Builder</h1>
-
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  Product Flow Builder
+                </h1>
               </div>
             </div>
           </div>
@@ -1246,7 +1369,9 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
         <div className="px-6 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-900">Add Components</span>
+              <span className="text-sm font-medium text-gray-900">
+                Add Components
+              </span>
               <div className="flex gap-3">
                 <button
                   onClick={addNewProduct}
@@ -1299,11 +1424,15 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
                 onClick={publishData}
                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-all shadow-sm ${
                   publishState.canPublish && !isCreatingBot
-                    ? 'bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800'
-                    : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800"
+                    : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                 }`}
                 disabled={!publishState.canPublish || isCreatingBot}
-                title={!publishState.canPublish ? publishState.reason : 'Create bot from connected components'}
+                title={
+                  !publishState.canPublish
+                    ? publishState.reason
+                    : "Create bot from connected components"
+                }
               >
                 {isCreatingBot ? (
                   <>
@@ -1350,7 +1479,9 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
             {!publishState.canPublish && (
               <>
                 <span>•</span>
-                <span className="text-amber-500 font-medium">{publishState.reason}</span>
+                <span className="text-amber-500 font-medium">
+                  {publishState.reason}
+                </span>
               </>
             )}
           </div>
@@ -1382,7 +1513,8 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
               Bot Created Successfully!
             </DialogTitle>
             <DialogDescription>
-              Your bot has been created and is ready to use. Click the link below to access your bot.
+              Your bot has been created and is ready to use. Click the link
+              below to access your bot.
             </DialogDescription>
           </DialogHeader>
 
@@ -1408,10 +1540,7 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
           </div>
 
           <DialogFooter className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowBotDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowBotDialog(false)}>
               Close
             </Button>
             <Button asChild>
