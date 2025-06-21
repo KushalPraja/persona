@@ -16,7 +16,8 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Plus, Save, AlertCircle, CheckCircle, Package } from 'lucide-react';
+import { Plus, Save, AlertCircle, CheckCircle, Package, ImageIcon, Upload, X } from 'lucide-react';
+import { uploadImageToBlob, isValidImageFile, formatFileSize, BlobUploadResult, deleteImageFromSupabase } from '@/lib/blob-storage';
 
 interface ProductData {
   name: string;
@@ -37,6 +38,11 @@ interface Solution {
   steps: string[];
 }
 
+interface ImageData {
+  image: BlobUploadResult | null;
+  description: string;
+}
+
 // Product Node Component
 const ProductNode = ({ data, id }: { data: any; id: string }) => {
   const [productData, setProductData] = useState<ProductData>({
@@ -45,11 +51,30 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
     extraText: data.productData?.extraText || ''
   });
 
+  // Update local state when data prop changes (for localStorage restore)
+  React.useEffect(() => {
+    if (data.productData) {
+      setProductData({
+        name: data.productData.name || '',
+        description: data.productData.description || '',
+        extraText: data.productData.extraText || ''
+      });
+    }
+  }, [data.productData]);
+
   const updateField = (field: keyof ProductData, value: string) => {
     const updated = { ...productData, [field]: value };
     setProductData(updated);
-    data.onChange?.(id, updated);
+    // Make sure we're calling onChange with the full productData structure
+    data.onChange?.(id, { productData: updated });
   };
+
+  // Also trigger onChange when component mounts to ensure initial data is saved
+  React.useEffect(() => {
+    if (productData.name || productData.description || productData.extraText) {
+      data.onChange?.(id, { productData });
+    }
+  }, []); // Only run on mount
 
   return (
     <div className="relative">
@@ -110,6 +135,13 @@ const ProductNode = ({ data, id }: { data: any; id: string }) => {
 // Issues Node Component
 const IssuesNode = ({ data, id }: { data: any; id: string }) => {
   const [issues, setIssues] = useState<Issue[]>(data.issues || []);
+
+  // Update local state when data prop changes (for localStorage restore)
+  React.useEffect(() => {
+    if (data.issues) {
+      setIssues(data.issues);
+    }
+  }, [data.issues]);
 
   const addIssue = () => {
     const newIssue: Issue = {
@@ -197,6 +229,13 @@ const IssuesNode = ({ data, id }: { data: any; id: string }) => {
 // Solutions Node Component
 const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
   const [solutions, setSolutions] = useState<Solution[]>(data.solutions || []);
+
+  // Update local state when data prop changes (for localStorage restore)
+  React.useEffect(() => {
+    if (data.solutions) {
+      setSolutions(data.solutions);
+    }
+  }, [data.solutions]);
 
   const addSolution = () => {
     const newSolution: Solution = {
@@ -312,10 +351,176 @@ const SolutionsNode = ({ data, id }: { data: any; id: string }) => {
   );
 };
 
+// Image + Description Node Component
+const ImageDescriptionNode = ({ data, id }: { data: any; id: string }) => {
+  const [imageData, setImageData] = useState<ImageData>({
+    image: data.imageData?.image || null,
+    description: data.imageData?.description || ''
+  });
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Update local state when data prop changes (for localStorage restore)
+  React.useEffect(() => {
+    if (data.imageData) {
+      setImageData({
+        image: data.imageData.image || null,
+        description: data.imageData.description || ''
+      });
+    }
+  }, [data.imageData]);
+
+  const updateDescription = (description: string) => {
+    const updated = { ...imageData, description };
+    setImageData(updated);
+    data.onChange?.(id, { imageData: updated });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!isValidImageFile(file)) {
+      alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      console.log('Starting upload for file:', file.name, 'Size:', file.size);
+      const uploadResult = await uploadImageToBlob(file);
+      console.log('Upload completed:', uploadResult);
+
+      const updated = { ...imageData, image: uploadResult };
+      setImageData(updated);
+      data.onChange?.(id, { imageData: updated });
+    } catch (error) {
+      console.error('Detailed upload error:', error);
+
+      // More specific error messages
+      let errorMessage = 'Failed to upload image. ';
+      if (error instanceof Error) {
+        if (error.message.includes('bucket')) {
+          errorMessage += 'Storage bucket not found. Please create an "images" bucket in your Supabase project.';
+        } else if (error.message.includes('policy')) {
+          errorMessage += 'Permission denied. Please check your Supabase storage policies.';
+        } else {
+          errorMessage += error.message;
+        }
+      } else {
+        errorMessage += 'Please check your Supabase configuration and try again.';
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
+  const removeImage = async () => {
+    if (imageData.image?.path) {
+      try {
+        await deleteImageFromSupabase(imageData.image.path);
+      } catch (error) {
+        console.error('Error deleting image from Supabase:', error);
+        // Continue with local removal even if cloud deletion fails
+      }
+    }
+    const updated = { ...imageData, image: null };
+    setImageData(updated);
+    data.onChange?.(id, { imageData: updated });
+  };
+
+  return (
+    <div className="relative">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-4 !h-4 !bg-purple-500 !border-2 !border-white !shadow-md"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-4 !h-4 !bg-purple-500 !border-2 !border-white !shadow-md"
+      />
+
+      <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="bg-purple-50 border-b border-purple-100 px-4 py-3 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="w-4 h-4 text-purple-500" />
+            <h3 className="text-sm font-medium text-gray-900">Image + Description</h3>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {/* Image Upload Section */}
+          <div className="space-y-2">
+            {!imageData.image ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <p className="text-sm text-gray-600">Upload an image</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="mt-2 block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-600 hover:file:bg-purple-100 file:cursor-pointer cursor-pointer"
+                  />
+                  {isUploading && (
+                    <p className="text-xs text-purple-600">Uploading...</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={imageData.image.url}
+                  alt="Uploaded image"
+                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                />
+                <button
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                >
+                  <X className="w-3 h-3 text-gray-600" />
+                </button>
+                <div className="mt-2 text-xs text-gray-500">
+                  {imageData.image.name} ({formatFileSize(imageData.image.size)})
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Description Section */}
+          <div className="space-y-2">
+            <textarea
+              value={imageData.description}
+              onChange={(e) => updateDescription(e.target.value)}
+              placeholder="Describe this image and its relevance to your product..."
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const nodeTypes: NodeTypes = {
   productNode: ProductNode,
   issuesNode: IssuesNode,
   solutionsNode: SolutionsNode,
+  imageDescriptionNode: ImageDescriptionNode,
 };
 
 const initialNodes: Node[] = [
@@ -337,6 +542,12 @@ const initialNodes: Node[] = [
     position: { x: 450, y: 300 },
     data: { solutions: [] },
   },
+  {
+    id: '4',
+    type: 'imageDescriptionNode',
+    position: { x: 450, y: 550 },
+    data: { imageData: {} },
+  },
 ];
 
 const initialEdges: Edge[] = [];
@@ -345,26 +556,139 @@ const initialEdges: Edge[] = [];
 
 export default function ProductFlowPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [nodeData, setNodeData] = useState<Record<string, any>>({});
   const nodeDataRef = React.useRef<Record<string, any>>({});
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Local storage key based on product ID
+  const storageKey = `product-flow-${resolvedParams.id}`;
+
+  // Define handleNodeDataChange first so it can be used in useEffect
+  const handleNodeDataChange = useCallback((nodeId: string, data: any) => {
+    console.log(`=== Node data change for ${nodeId} ===`, data);
+    setNodeData(prev => {
+      const updated = { ...prev, [nodeId]: data };
+      nodeDataRef.current = updated;
+      return updated;
+    });
+    console.log('Updated nodeDataRef:', nodeDataRef.current);
+  }, []);
+
+  // Initialize nodes and edges with proper data structure
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    initialNodes.map(node => ({
+      ...node,
+      data: {
+        ...node.data,
+        onChange: handleNodeDataChange,
+      },
+    }))
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Load data from localStorage on component mount
+  React.useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(storageKey);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        console.log('Loading saved data from localStorage:', parsed);
+
+        // Restore nodeData first
+        if (parsed.nodeData) {
+          setNodeData(parsed.nodeData);
+          nodeDataRef.current = parsed.nodeData;
+        }
+
+        // Then restore nodes with the saved data merged in
+        if (parsed.nodes) {
+          const restoredNodes = parsed.nodes.map((savedNode: any) => {
+            const nodeDataForThisNode = parsed.nodeData?.[savedNode.id] || {};
+            return {
+              ...savedNode,
+              data: {
+                ...savedNode.data,
+                ...nodeDataForThisNode,
+                onChange: handleNodeDataChange,
+              },
+            };
+          });
+          setNodes(restoredNodes);
+        }
+
+        if (parsed.edges) {
+          setEdges(parsed.edges);
+        }
+      }
+      setIsLoaded(true);
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      setIsLoaded(true);
+    }
+  }, [resolvedParams.id, handleNodeDataChange, setNodes, setEdges]);
+
+  // Save data to localStorage whenever nodes, edges, or nodeData changes
+  React.useEffect(() => {
+    if (!isLoaded) return; // Don't save until initial load is complete
+
+    try {
+      const dataToSave = {
+        nodes: nodes.map(node => ({
+          ...node,
+          data: {
+            // Remove the onChange function but keep all other data
+            ...Object.fromEntries(
+              Object.entries(node.data).filter(([key]) => key !== 'onChange')
+            )
+          }
+        })),
+        edges,
+        nodeData: nodeDataRef.current,
+        timestamp: new Date().toISOString()
+      };
+
+      localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      setLastSaved(new Date().toLocaleTimeString());
+      console.log('Saved to localStorage:', dataToSave);
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }, [nodes, edges, nodeData, storageKey, isLoaded]);
+
+  // Clear localStorage function
+  const clearSavedData = () => {
+    try {
+      localStorage.removeItem(storageKey);
+      // Reset to initial state
+      setNodes(initialNodes.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          onChange: handleNodeDataChange,
+        },
+      })));
+      setEdges(initialEdges);
+      setNodeData({});
+      nodeDataRef.current = {};
+      setLastSaved(null);
+      alert('Saved data cleared! Page reset to initial state.');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+      alert('Error clearing saved data.');
+    }
+  };
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
-  const handleNodeDataChange = useCallback((nodeId: string, data: any) => {
-    setNodeData(prev => ({ ...prev, [nodeId]: data }));
-    nodeDataRef.current[nodeId] = data;
-  }, []);
-
   const addNewProduct = () => {
     const newNodeId = `product-${Date.now()}`;
-    const newNode: Node = {
+    const newNode = {
       id: newNodeId,
-      type: 'productNode',
+      type: 'productNode' as const,
       position: { x: Math.random() * 200 + 100, y: Math.random() * 200 + 100 },
       data: { productData: {}, onChange: handleNodeDataChange },
     };
@@ -373,9 +697,9 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
   const addNewIssues = () => {
     const newNodeId = `issues-${Date.now()}`;
-    const newNode: Node = {
+    const newNode = {
       id: newNodeId,
-      type: 'issuesNode',
+      type: 'issuesNode' as const,
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 50 },
       data: { issues: [], onChange: handleNodeDataChange },
     };
@@ -384,11 +708,22 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
   const addNewSolutions = () => {
     const newNodeId = `solutions-${Date.now()}`;
-    const newNode: Node = {
+    const newNode = {
       id: newNodeId,
-      type: 'solutionsNode',
+      type: 'solutionsNode' as const,
       position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 300 },
       data: { solutions: [], onChange: handleNodeDataChange },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addNewImageDescription = () => {
+    const newNodeId = `image-${Date.now()}`;
+    const newNode = {
+      id: newNodeId,
+      type: 'imageDescriptionNode' as const,
+      position: { x: Math.random() * 200 + 450, y: Math.random() * 200 + 550 },
+      data: { imageData: {}, onChange: handleNodeDataChange },
     };
     setNodes((nds) => [...nds, newNode]);
   };
@@ -435,8 +770,174 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
       return;
     }
 
-    // Only include connected nodes in the export
+    // Check if there's a connected Product node
     const connectedNodes = nodes.filter(node => connectedNodeIds.has(node.id));
+    const hasConnectedProductNode = connectedNodes.some(node => node.type === 'productNode');
+
+    if (!hasConnectedProductNode) {
+      alert('A Product node is required for publishing! Please connect at least one Product node to other nodes.');
+      return;
+    }
+
+    // Generate clean CSV format - more paragraph-like
+    const generateCSV = () => {
+      let csv = 'Section,Content\\r\\n';
+
+      // Helper function to escape CSV values
+      const escapeCSV = (value: string) => {
+        if (!value) return '';
+        // If value contains comma, newline, or quote, wrap in quotes and escape internal quotes
+        if (value.includes(',') || value.includes('\\r') || value.includes('\\n') || value.includes('"')) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      };
+
+      console.log('=== DEBUG: Node data being processed ===');
+      console.log('Connected nodes:', connectedNodes);
+      console.log('Node data ref:', nodeDataRef.current);
+
+      // Get product data - check multiple sources
+      const productNode = connectedNodes.find(node => node.type === 'productNode');
+      console.log('Product node found:', productNode);
+
+      let productData = null;
+      if (productNode) {
+        // Try multiple ways to get the data
+        productData = nodeDataRef.current[productNode.id] ||
+                     productNode.data ||
+                     nodeData[productNode.id] || {};
+        console.log('Product data extracted:', productData);
+      }
+
+      // Product Overview Section
+      let productOverview = '';
+      if (productData && productData.productData) {
+        const name = productData.productData.name || 'Untitled Product';
+        const description = productData.productData.description || '';
+        const details = productData.productData.extraText || '';
+
+        productOverview = `Product: ${name}. `;
+        if (description) productOverview += `Description: ${description}. `;
+        if (details) productOverview += `Additional Details: ${details}. `;
+        productOverview += `Product ID: ${resolvedParams.id}. Created: ${new Date().toISOString().split('T')[0]}. Connected Components: ${connectedNodes.length}.`;
+      } else {
+        productOverview = `Product: Untitled Product. Product ID: ${resolvedParams.id}. Created: ${new Date().toISOString().split('T')[0]}. Connected Components: ${connectedNodes.length}. (No product data available)`;
+      }
+
+      csv += `Product Overview,"${escapeCSV(productOverview)}"\\r\\n`;
+
+      // Images Section
+      const imageNodes = connectedNodes.filter(node => node.type === 'imageDescriptionNode');
+      console.log('Image nodes found:', imageNodes);
+
+      if (imageNodes.length > 0) {
+        let imagesContent = '';
+        imageNodes.forEach((node, index) => {
+          const imageNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log(`Image node ${index + 1} data:`, imageNodeData);
+
+          const imageData = imageNodeData.imageData || {};
+          if (imageData) {
+            if (index > 0) imagesContent += ' ';
+            imagesContent += `Image ${index + 1}: `;
+            if (imageData.image?.url) {
+              imagesContent += `Available at ${imageData.image.url}. `;
+            }
+            if (imageData.description) {
+              imagesContent += `Description: ${imageData.description}. `;
+            }
+          }
+        });
+        if (imagesContent) {
+          csv += `Images and Media,"${escapeCSV(imagesContent.trim())}"\\r\\n`;
+        }
+      }
+
+      // Common Issues Section
+      const issueNodes = connectedNodes.filter(node => node.type === 'issuesNode');
+      console.log('Issue nodes found:', issueNodes);
+
+      if (issueNodes.length > 0) {
+        let issuesContent = '';
+        let issueCounter = 1;
+        issueNodes.forEach(node => {
+          const issueNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log('Issue node data:', issueNodeData);
+
+          const issues = issueNodeData.issues || [];
+          issues.forEach((issue: any) => {
+            if (issue.title) {
+              if (issuesContent) issuesContent += ' ';
+              issuesContent += `Issue ${issueCounter}: ${issue.title}.`;
+              if (issue.description) {
+                issuesContent += ` ${issue.description}.`;
+              }
+              issueCounter++;
+            }
+          });
+        });
+        if (issuesContent) {
+          csv += `Common Issues,"${escapeCSV(issuesContent.trim())}"\\r\\n`;
+        }
+      }
+
+      // Solutions Section
+      const solutionNodes = connectedNodes.filter(node => node.type === 'solutionsNode');
+      console.log('Solution nodes found:', solutionNodes);
+
+      if (solutionNodes.length > 0) {
+        let solutionsContent = '';
+        let solutionCounter = 1;
+        solutionNodes.forEach(node => {
+          const solutionNodeData = nodeDataRef.current[node.id] || node.data || nodeData[node.id] || {};
+          console.log('Solution node data:', solutionNodeData);
+
+          const solutions = solutionNodeData.solutions || [];
+          solutions.forEach((solution: any) => {
+            if (solution.title) {
+              if (solutionsContent) solutionsContent += ' ';
+              solutionsContent += `Solution ${solutionCounter}: ${solution.title}.`;
+              if (solution.description) {
+                solutionsContent += ` ${solution.description}.`;
+              }
+              if (solution.steps && solution.steps.length > 0) {
+                const steps = solution.steps.filter((step: string) => step.trim());
+                if (steps.length > 0) {
+                  solutionsContent += ` Steps: ${steps.join(', ')}.`;
+                }
+              }
+              solutionCounter++;
+            }
+          });
+        });
+        if (solutionsContent) {
+          csv += `Solutions and Troubleshooting,"${escapeCSV(solutionsContent.trim())}"\\r\\n`;
+        }
+      }
+
+      console.log('=== DEBUG: Final CSV generated ===');
+      return csv;
+    };
+
+    const csvData = generateCSV();
+
+    // Create formatted output
+    const formattedOutput = {
+      csv: csvData
+    };
+
+    console.log('=== PUBLISHED CSV DATA ===');
+    console.log('JSON Format:');
+    console.log(JSON.stringify(formattedOutput, null, 2));
+    console.log('\\n=== RAW CSV CONTENT ===');
+    console.log(csvData.replace(/\\\\r\\\\n/g, '\\n'));
+    console.log('\\n=== FORMATTED CSV ===');
+    // Show nicely formatted CSV for easy reading
+    const readableCSV = csvData.replace(/\\\\r\\\\n/g, '\\n');
+    console.log(readableCSV);
+
+    // Only include connected nodes in the export
     const connectedEdges = edges;
 
     const allData = {
@@ -460,29 +961,37 @@ export default function ProductFlowPage({ params }: { params: Promise<{ id: stri
 
     console.log('Publishing connected data for product:', resolvedParams.id, allData);
 
-    // Show summary
-    const summary = `
-Product: ${resolvedParams.id}
-Connected nodes: ${connectedNodes.length}/${nodes.length}
-Connected components: ${nodeGroups.length}
-Edges: ${edges.length}
-    `.trim();
-
-    alert(`Data published successfully!\n\n${summary}`);
+    // Copy CSV to clipboard
+    navigator.clipboard.writeText(JSON.stringify(formattedOutput)).then(() => {
+      alert(`CSV data published and copied to clipboard!\\n\\nConnected nodes: ${connectedNodes.length}/${nodes.length}\\n\\nCheck browser console for detailed CSV output.`);
+    }).catch(() => {
+      alert(`CSV data published!\\n\\nConnected nodes: ${connectedNodes.length}/${nodes.length}\\n\\nCheck console for CSV output.`);
+    });
   };
 
-  // Update nodes with onChange handler
-  React.useEffect(() => {
-    setNodes((nds) =>
-      nds.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          onChange: handleNodeDataChange,
-        },
-      }))
-    );
-  }, [handleNodeDataChange, setNodes]);
+  // Helper function to check if publish is allowed
+  const getPublishState = () => {
+    if (edges.length === 0) {
+      return { canPublish: false, reason: 'No connections' };
+    }
+
+    const connectedIds = new Set<string>();
+    edges.forEach(edge => {
+      connectedIds.add(edge.source);
+      connectedIds.add(edge.target);
+    });
+
+    const connectedNodes = nodes.filter(node => connectedIds.has(node.id));
+    const hasConnectedProductNode = connectedNodes.some(node => node.type === 'productNode');
+
+    if (!hasConnectedProductNode) {
+      return { canPublish: false, reason: 'No Product node connected' };
+    }
+
+    return { canPublish: true, reason: '', connectedCount: connectedIds.size };
+  };
+
+  const publishState = getPublishState();
 
   return (
     <div className="w-full h-screen flex flex-col">
@@ -495,12 +1004,25 @@ Edges: ${edges.length}
             <span>Nodes: {nodes.length}</span>
             <span>•</span>
             <span>Connections: {edges.length}</span>
-            {edges.length === 0 && (
-              <span className="text-amber-600 font-medium">⚠ Connect nodes to publish</span>
+            {lastSaved && (
+              <>
+                <span>•</span>
+                <span className="text-green-600">✓ Saved at {lastSaved}</span>
+              </>
+            )}
+            {!publishState.canPublish && (
+              <span className="text-amber-600 font-medium">⚠ {publishState.reason}</span>
             )}
           </div>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={clearSavedData}
+            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors"
+          >
+            <X className="w-4 h-4" />
+            Clear Data
+          </button>
           <button
             onClick={addNewProduct}
             className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
@@ -523,23 +1045,23 @@ Edges: ${edges.length}
             Solutions
           </button>
           <button
+            onClick={addNewImageDescription}
+            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            <ImageIcon className="w-4 h-4" />
+            Image
+          </button>
+          <button
             onClick={publishData}
             className={`flex items-center gap-1 px-3 py-2 text-sm font-medium text-white rounded-md transition-colors ${
-              edges.length > 0
+              publishState.canPublish
                 ? 'bg-blue-600 hover:bg-blue-700'
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
-            disabled={edges.length === 0}
+            disabled={!publishState.canPublish}
           >
             <Save className="w-4 h-4" />
-            Publish Connected ({(() => {
-              const connectedIds = new Set<string>();
-              edges.forEach(edge => {
-                connectedIds.add(edge.source);
-                connectedIds.add(edge.target);
-              });
-              return connectedIds.size;
-            })()})
+            Publish Connected ({publishState.connectedCount || 0})
           </button>
         </div>
       </div>
