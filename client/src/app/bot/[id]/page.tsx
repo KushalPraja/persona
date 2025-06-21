@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import QRCodeSVG from "@/components/qr-code";
-import { Dialog } from "@/components/ui/dialog";
-
+import ModernFAQSection from "@/components/modern-faq-section";
 const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), {
   ssr: false,
 });
@@ -28,11 +27,26 @@ interface Message {
   content: string;
 }
 
+interface GraphNode {
+  id: string;
+  group: string;
+  category: string;
+  description: string;
+  insights: string[];
+  color: string;
+}
+
+interface GraphLink {
+  source: string;
+  target: string;
+  relationship: string;
+}
+
 interface BotResponse {
   response: string;
   graph: {
-    nodes: Array<{ id: string; group: string }>;
-    links: Array<{ source: string; target: string }>;
+    nodes: GraphNode[];
+    links: GraphLink[];
   };
   faqs: Array<{ question: string; response: string }>;
 }
@@ -40,6 +54,11 @@ interface BotResponse {
 interface ProductBot {
   id: string;
   history: Message[];
+  graph: {
+    nodes: GraphNode[];
+    links: GraphLink[];
+  };
+  faqs: Array<{ question: string; response: string }>;
 }
 
 export default function BotPage() {
@@ -56,6 +75,7 @@ export default function BotPage() {
   const [showQR, setShowQR] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
   // Fetch bot data on mount
   useEffect(() => {
@@ -78,6 +98,12 @@ export default function BotPage() {
               faqs: [],
             });
           }
+        } else {
+          setCurrentResponse({
+            response: "Welcome! Explore the graph and FAQ tabs.",
+            graph: data.graph,
+            faqs: data.faqs,
+          });
         }
       } catch (e: any) {
         setError(e.message);
@@ -307,7 +333,7 @@ export default function BotPage() {
               {bot.history.length === 0 && (
                 <div className="text-center py-16">
                   <h1 className="text-4xl font-medium text-black mb-4">
-                    What can I help you build?
+                    What can I help you with?
                   </h1>
                   <p className="text-gray-600 max-w-md mx-auto">
                     Ask me anything about your product. I can provide insights,
@@ -398,25 +424,59 @@ export default function BotPage() {
                   Force Graph Visualization
                 </h2>
                 <p className="text-gray-600">
-                  Interactive 3D representation of product relationships
+                  Interactive 3D representation of features and insights
                 </p>
               </div>
-
-              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                {currentResponse?.graph.nodes.length > 0 ? (
-                  <div className="h-[600px] relative">
-                    <ForceGraph3D
-                      graphData={currentResponse.graph}
-                      nodeAutoColorBy="group"
-                      nodeColor={(node: any) => getNodeColor(node.group)}
-                      nodeLabel="id"
-                      backgroundColor="rgba(255,255,255,1)"
-                      width={undefined}
-                      height={600}
-                      linkColor={() => "#e5e7eb"}
-                      nodeRelSize={6}
-                    />
-                  </div>
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm relative">
+                {bot && bot.graph && bot.graph.nodes.length > 0 ? (
+                  <>
+                    <div className="h-[600px] relative">
+                      <ForceGraph3D
+                        graphData={bot.graph}
+                        nodeColor={(node: any) => node.color || "#888"}
+                        nodeLabel={(node: any) => `${node.id} (${node.group})`}
+                        backgroundColor="rgba(255,255,255,1)"
+                        width={undefined}
+                        height={600}
+                        linkColor={() => "#000000"}
+                        nodeRelSize={6}
+                        onNodeClick={(node: any) => setSelectedNode(node)}
+                      />
+                    </div>
+                    {selectedNode && (
+                      <div className="fixed top-0 right-0 h-full w-[350px] bg-white border-l border-gray-200 shadow-lg z-50 p-6 overflow-y-auto">
+                        <button
+                          className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl"
+                          onClick={() => setSelectedNode(null)}
+                          aria-label="Close"
+                        >
+                          ×
+                        </button>
+                        <h3 className="text-xl font-bold mb-2">
+                          {selectedNode.id}
+                        </h3>
+                        <div className="flex gap-2 mb-4">
+                          <span className="px-2 py-1 bg-gray-100 rounded text-xs font-semibold text-gray-700">
+                            {selectedNode.group}
+                          </span>
+                          <span className="px-2 py-1 bg-blue-100 rounded text-xs font-semibold text-blue-700">
+                            {selectedNode.category}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 mb-4">
+                          {selectedNode.description}
+                        </p>
+                        <div className="mb-4">
+                          <h4 className="font-semibold mb-1">Insights</h4>
+                          <ul className="list-disc list-inside text-gray-600">
+                            {selectedNode.insights.map((insight, i) => (
+                              <li key={i}>{insight}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="h-[600px] flex items-center justify-center">
                     <div className="text-center">
@@ -443,54 +503,12 @@ export default function BotPage() {
             </div>
           )}
 
-          {/* FAQ View */}
+          {/* FAQ View - Now using the modern component */}
           {activeView === "faq" && (
-            <div className="py-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-black mb-2">
-                  Frequently Asked Questions
-                </h2>
-                <p className="text-gray-600">
-                  Quick answers to common product questions
-                </p>
-              </div>
-
-              {currentResponse?.faqs.length > 0 ? (
-                <div className="space-y-4 max-w-3xl mx-auto">
-                  {currentResponse.faqs.map((faq, index) => (
-                    <div
-                      key={index}
-                      className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-sm transition-shadow"
-                    >
-                      <h3 className="font-medium text-black mb-3">
-                        {faq.question}
-                      </h3>
-                      <p className="text-gray-600 leading-relaxed">
-                        {faq.response}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 border-2 border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <HelpCircle className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-black mb-2">
-                    No FAQs Available
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Start a conversation to generate relevant FAQs
-                  </p>
-                  <Button
-                    onClick={() => setActiveView("chat")}
-                    className="bg-black hover:bg-black/90 text-white rounded-full px-6"
-                  >
-                    Start Chat
-                  </Button>
-                </div>
-              )}
-            </div>
+            <ModernFAQSection
+              faqs={bot?.faqs || []}
+              setActiveView={setActiveView}
+            />
           )}
         </div>
       </div>

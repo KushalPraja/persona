@@ -7,7 +7,6 @@ const port = 5000;
 
 app.use(
   cors({
-
     origin: "*",
     credentials: true,
   })
@@ -59,6 +58,8 @@ app.get("/api/bot/:id", async (req, res) => {
     prompt: bot.prompt,
     tone: bot.tone,
     history: bot.history,
+    graph: bot.graph,
+    faqs: bot.faqs,
   });
 });
 

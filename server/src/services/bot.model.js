@@ -14,6 +14,11 @@ const BotSchema = new mongoose.Schema({
   prompt: { type: String, required: true },
   tone: { type: String, required: true },
   history: { type: [MessageSchema], default: [] },
+  graph: {
+    nodes: { type: [Object], default: [] },
+    links: { type: [Object], default: [] },
+  },
+  faqs: { type: [Object], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 
