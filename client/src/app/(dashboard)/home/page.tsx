@@ -189,11 +189,11 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center shadow-xl">
-              <div className="text-white">
-                <SparklesIcon size={24} />
-              </div>
-            </div>
+            <img
+              src="/logo.svg"
+              alt="Persona Logo"
+              className="w-16 h-16 rounded-2xl shadow-xl"
+            />
             <h1 className="text-4xl font-bold text-black tracking-tight">Persona</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

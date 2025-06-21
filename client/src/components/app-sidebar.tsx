@@ -8,6 +8,7 @@ import {
   Database,
   Folder,
 } from "lucide-react";
+import Image from "next/image";
 
 import {
   Sidebar,
@@ -51,13 +52,19 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <User className="size-4" />
+        <div className="flex items-center gap-3 px-2 py-2">
+          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white border">
+            <Image
+              src="/logo.svg"
+              alt="Persona"
+              width={20}
+              height={20}
+              className="w-5 h-5"
+            />
           </div>
           <div className="flex flex-col gap-0.5 leading-none">
-            <span className="font-semibold">Persona</span>
-            <span className="text-xs">v1.0.0</span>
+            <span className="font-semibold text-sidebar-foreground">Persona</span>
+            <span className="text-xs text-sidebar-foreground/70">Product Intelligence</span>
           </div>
         </div>
       </SidebarHeader>
@@ -81,8 +88,8 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="p-2 text-xs text-sidebar-foreground/70">
-          2025 Persona - SpurHacks
+        <div className="p-2 text-xs text-sidebar-foreground/70 border-t">
+          2025 Persona • SpurHacks
         </div>
       </SidebarFooter>
     </Sidebar>

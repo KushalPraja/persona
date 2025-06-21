@@ -15,6 +15,7 @@ import {
   Minimize2,
   MoreHorizontal,
 } from "lucide-react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import QRCodeSVG from "@/components/qr-code";
 import ModernFAQSection from "@/components/modern-faq-section";
@@ -212,50 +213,59 @@ export default function BotPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Floating Navigation */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white border border-gray-200 rounded-full px-2 py-2 shadow-lg backdrop-blur-sm">
-          <div className="flex items-center gap-1">
+      {/* Responsive Floating Navigation */}
+      <div className="fixed top-4 sm:top-6 left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-full sm:w-auto sm:px-0">
+        <div className="bg-white border border-gray-200 rounded-full px-2 py-2 shadow-lg backdrop-blur-sm max-w-full overflow-hidden">
+          <div className="flex items-center gap-1 justify-center">
+            {/* Chat Button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setActiveView("chat")}
-              className={`rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+              className={`rounded-full px-2 sm:px-4 py-2 text-xs sm:text-sm transition-all duration-200 ${
                 activeView === "chat"
                   ? "bg-black text-white hover:bg-black/90"
                   : "text-gray-600 hover:text-black hover:bg-gray-50"
               }`}
             >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Chat
+              <MessageCircle className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Chat</span>
             </Button>
+
+            {/* Graph Button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setActiveView("graph")}
-              className={`rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+              className={`rounded-full px-2 sm:px-4 py-2 text-xs sm:text-sm transition-all duration-200 ${
                 activeView === "graph"
                   ? "bg-black text-white hover:bg-black/90"
                   : "text-gray-600 hover:text-black hover:bg-gray-50"
               }`}
             >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Graph
+              <BarChart3 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Graph</span>
             </Button>
+
+            {/* FAQ Button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setActiveView("faq")}
-              className={`rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+              className={`rounded-full px-2 sm:px-4 py-2 text-xs sm:text-sm transition-all duration-200 ${
                 activeView === "faq"
                   ? "bg-black text-white hover:bg-black/90"
                   : "text-gray-600 hover:text-black hover:bg-gray-50"
               }`}
             >
-              <HelpCircle className="w-4 h-4 mr-2" />
-              FAQ
+              <HelpCircle className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">FAQ</span>
             </Button>
-            <div className="w-px h-6 bg-gray-200 mx-2" />
+
+            {/* Divider - hidden on mobile */}
+            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2" />
+
+            {/* Expand/Minimize Button */}
             <Button
               variant="ghost"
               size="sm"
@@ -268,13 +278,16 @@ export default function BotPage() {
                 <Maximize2 className="w-4 h-4" />
               )}
             </Button>
+
+            {/* QR Code Button - hidden on mobile, shown as icon only on tablet */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowQR(true)}
-              className="rounded-full px-4 py-2 text-sm transition-all duration-200 text-gray-600 hover:text-black hover:bg-gray-50"
+              className="hidden sm:flex rounded-full px-2 lg:px-4 py-2 text-xs lg:text-sm transition-all duration-200 text-gray-600 hover:text-black hover:bg-gray-50"
             >
-              QR Code
+              <span className="lg:hidden">📱</span>
+              <span className="hidden lg:inline">QR Code</span>
             </Button>
           </div>
         </div>
@@ -388,6 +401,21 @@ export default function BotPage() {
 
               {/* Input */}
               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-full max-w-3xl px-6">
+                {/* Powered by Persona */}
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <span className="text-xs text-gray-500">Powered by</span>
+                  <div className="flex items-center gap-1.5">
+                    <Image
+                      src="/logo.svg"
+                      alt="Persona"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-xs font-medium text-gray-700">Persona</span>
+                  </div>
+                </div>
+
                 <form onSubmit={sendMessage} className="relative">
                   <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
                     <Input

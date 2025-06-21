@@ -162,6 +162,11 @@ export default function HeroGeometric({
             animate="visible"
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12"
           >
+            <img
+              src="/logo.svg"
+              alt="Persona Logo"
+              className="w-5 h-5 rounded"
+            />
             <span className="text-sm text-white/60 tracking-wide">{badge}</span>
           </motion.div>
 

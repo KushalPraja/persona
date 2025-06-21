@@ -1787,9 +1787,11 @@ export default function ProductFlowPage({
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
+                <img
+                  src="/logo.svg"
+                  alt="Persona Logo"
+                  className="w-8 h-8 rounded-lg"
+                />
                 <span className="text-sm font-medium text-gray-600">
                   Persona
                 </span>
