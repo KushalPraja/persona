@@ -83,7 +83,12 @@ export default function BotPage() {
   useEffect(() => {
     async function fetchBot() {
       try {
-        const res = await fetch(`${backendUrl}/api/bot/${id}`);
+        const res = await fetch(`${backendUrl}/api/bot/${id}`, {
+          method: "GET",
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        });
         if (!res.ok) throw new Error("Bot not found");
         const data = await res.json();
         setBot(data);
@@ -136,7 +141,9 @@ export default function BotPage() {
     try {
       const res = await fetch(`${backendUrl}/api/bot/${id}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" , 
+          "ngrok-skip-browser-warning": "69420"
+        },
         body: JSON.stringify({ message: input }),
       });
       if (!res.ok) throw new Error("Failed to send message");

@@ -1713,7 +1713,9 @@ export default function ProductFlowPage({
     try {
       const res = await fetch(`${backendUrl}/api/bot`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,
+          "ngrok-skip-browser-warning": "69420"
+        },
         body: JSON.stringify({
           csv: csvData,
           prompt:
