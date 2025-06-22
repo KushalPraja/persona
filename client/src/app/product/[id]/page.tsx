@@ -1775,14 +1775,14 @@ export default function ProductFlowPage({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      {/* Clean, hierarchical top bar */}
+      {/* Responsive top bar */}
       <div className="bg-white border-b">
         {/* Main navigation and title */}
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
               {/* Persona Logo */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => window.history.back()}
                   className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-md transition-all"
@@ -1792,16 +1792,16 @@ export default function ProductFlowPage({
                 <img
                   src="/logo.svg"
                   alt="Persona Logo"
-                  className="w-8 h-8 rounded-lg"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg"
                 />
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-xs sm:text-sm font-medium text-gray-600 hidden sm:inline">
                   Persona
                 </span>
               </div>
 
-              <div className="h-6 w-px bg-gray-200"></div>
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight">
+              <div className="h-4 sm:h-6 w-px bg-gray-200 hidden sm:block"></div>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-semibold tracking-tight truncate">
                   Product Flow Builder
                 </h1>
               </div>
@@ -1809,96 +1809,96 @@ export default function ProductFlowPage({
           </div>
         </div>
 
-        {/* Building blocks section - emphasized and prominent */}
-        <div className="px-6 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-900">
+        {/* Building blocks section - responsive */}
+        <div className="px-4 sm:px-6 pb-3 sm:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <span className="text-xs sm:text-sm font-medium text-gray-900">
                 Add Components
               </span>
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex gap-2 flex-wrap">
                 {/* Core Product Components */}
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <button
                     onClick={addNewOverview}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-gray-900 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-gray-800 transition-all shadow-sm"
                   >
-                    <Package className="w-4 h-4" />
-                    Overview
+                    <Package className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Overview</span>
                   </button>
                   <button
                     onClick={addNewFeatures}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-sm"
                   >
-                    <Zap className="w-4 h-4" />
-                    Features
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Features</span>
                   </button>
                   <button
                     onClick={addNewUseCases}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-purple-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 transition-all shadow-sm"
                   >
-                    <Target className="w-4 h-4" />
-                    Use Cases
+                    <Target className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Use Cases</span>
                   </button>
                 </div>
 
                 {/* Analysis Components */}
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <button
                     onClick={addNewCapabilities}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-green-700 transition-all shadow-sm"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    Capabilities
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Capabilities</span>
                   </button>
                   <button
                     onClick={addNewLimitations}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm"
                   >
-                    <AlertCircle className="w-4 h-4" />
-                    Limitations
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Limitations</span>
                   </button>
                   <button
                     onClick={addNewPersonas}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-indigo-700 transition-all shadow-sm"
                   >
-                    <Users className="w-4 h-4" />
-                    Target Users
+                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Target Users</span>
                   </button>
                 </div>
 
                 {/* Content Components */}
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <button
                     onClick={addNewMedia}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-slate-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm"
                   >
-                    <ImageIcon className="w-4 h-4" />
-                    Media
+                    <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Media</span>
                   </button>
                   <button
                     onClick={addNewCustomField}
-                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-all shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-orange-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-orange-700 transition-all shadow-sm"
                   >
-                    <Hash className="w-4 h-4" />
-                    Custom Fields
+                    <Hash className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Custom Fields</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Action buttons - positioned on the right */}
-            <div className="flex items-center gap-3">
+            {/* Action buttons - responsive */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={clearSavedData}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 bg-white border border-gray-200 hover:border-red-200 rounded-lg transition-all shadow-sm"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 bg-white border border-gray-200 hover:border-red-200 rounded-lg transition-all shadow-sm"
               >
-                <X className="w-4 h-4" />
-                Clear
+                <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Clear</span>
               </button>
               <button
                 onClick={publishData}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-all shadow-sm ${
+                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg border transition-all shadow-sm ${
                   publishState.canPublish && !isCreatingBot
                     ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800"
                     : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -1912,13 +1912,15 @@ export default function ProductFlowPage({
               >
                 {isCreatingBot ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating Bot...
+                    <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+                    <span className="hidden sm:inline">Creating Bot...</span>
+                    <span className="sm:hidden">Creating...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
-                    Create Bot
+                    <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Create Bot</span>
+                    <span className="sm:hidden">Create</span>
                   </>
                 )}
               </button>
@@ -1926,36 +1928,36 @@ export default function ProductFlowPage({
           </div>
         </div>
 
-        {/* Status info - small and subtle */}
-        <div className="px-6 pb-3 border-t border-gray-50">
-          <div className="flex items-center gap-4 pt-3 text-xs text-gray-400">
-            <span>ID: {resolvedParams.id}</span>
+        {/* Status info - responsive and minimal */}
+        <div className="px-4 sm:px-6 pb-2 sm:pb-3 border-t border-gray-50">
+          <div className="flex items-center gap-2 sm:gap-4 pt-2 sm:pt-3 text-xs text-gray-400 overflow-x-auto">
+            <span className="whitespace-nowrap">ID: {resolvedParams.id}</span>
             {projectParams.name && (
               <>
-                <span>•</span>
-                <span>{projectParams.name}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="whitespace-nowrap hidden sm:inline">{projectParams.name}</span>
               </>
             )}
             {projectParams.tone && (
               <>
-                <span>•</span>
-                <span>{projectParams.tone}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="whitespace-nowrap hidden sm:inline">{projectParams.tone}</span>
               </>
             )}
+            <span className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">{nodes.length} nodes</span>
             <span>•</span>
-            <span>{nodes.length} nodes</span>
-            <span>•</span>
-            <span>{edges.length} connections</span>
+            <span className="whitespace-nowrap">{edges.length} connections</span>
             {lastSaved && (
               <>
-                <span>•</span>
-                <span className="text-green-500">Saved {lastSaved}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="text-green-500 font-medium whitespace-nowrap hidden sm:inline">Saved {lastSaved}</span>
               </>
             )}
             {!publishState.canPublish && (
               <>
                 <span>•</span>
-                <span className="text-amber-500 font-medium">
+                <span className="text-amber-500 font-medium whitespace-nowrap">
                   {publishState.reason}
                 </span>
               </>
