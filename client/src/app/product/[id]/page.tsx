@@ -1709,9 +1709,9 @@ export default function ProductFlowPage({
     setIsCreatingBot(true);
     setBotError("");
     setBotUrl("");
-
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     try {
-      const res = await fetch("http://localhost:5000/api/bot", {
+      const res = await fetch(`${backendUrl}/api/bot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -77,12 +77,13 @@ export default function BotPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  // Fetch bot data on mount
+  console.log(backendUrl);
   useEffect(() => {
     async function fetchBot() {
       try {
-        const res = await fetch(`http://localhost:5000/api/bot/${id}`);
+        const res = await fetch(`${backendUrl}/api/bot/${id}`);
         if (!res.ok) throw new Error("Bot not found");
         const data = await res.json();
         setBot(data);
@@ -133,7 +134,7 @@ export default function BotPage() {
     setError("");
 
     try {
-      const res = await fetch(`http://localhost:5000/api/bot/${id}/chat`, {
+      const res = await fetch(`${backendUrl}/api/bot/${id}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
@@ -412,7 +413,9 @@ export default function BotPage() {
                       height={16}
                       className="w-4 h-4"
                     />
-                    <span className="text-xs font-medium text-gray-700">Persona</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      Persona
+                    </span>
                   </div>
                 </div>
 
@@ -471,36 +474,170 @@ export default function BotPage() {
                       />
                     </div>
                     {selectedNode && (
-                      <div className="fixed top-0 right-0 h-full w-[350px] bg-white border-l border-gray-200 shadow-lg z-50 p-6 overflow-y-auto">
-                        <button
-                          className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl"
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+                        <div className="relative max-w-md w-full animate-in fade-in-0 zoom-in-95 duration-300">
+                          {/* Floating Card */}
+                          <div className="bg-white/95 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+                            {/* Header with gradient */}
+                            <div className="relative p-6 pb-4 bg-gradient-to-br from-gray-50 to-white">
+                              <button
+                                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-gray-600 transition-all duration-200 shadow-sm"
+                                onClick={() => setSelectedNode(null)}
+                                aria-label="Close"
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              </button>
+
+                              {/* Node Icon */}
+                              <div className="flex items-center gap-4 mb-4">
+                                <div
+                                  className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
+                                  style={{
+                                    backgroundColor:
+                                      selectedNode.color || "#888",
+                                  }}
+                                >
+                                  <div className="w-6 h-6 bg-white rounded-full opacity-80"></div>
+                                </div>
+                                <div>
+                                  <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                                    {selectedNode.id}
+                                  </h3>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    Node Details
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Tags */}
+                              <div className="flex flex-wrap gap-2">
+                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                                  {selectedNode.group}
+                                </span>
+                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
+                                  {selectedNode.category}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-6 pt-4 space-y-5">
+                              {/* Description */}
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                  <svg
+                                    className="w-4 h-4 mr-2 text-gray-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                  </svg>
+                                  Description
+                                </h4>
+                                <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                  {selectedNode.description}
+                                </p>
+                              </div>
+
+                              {/* Insights */}
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                  <svg
+                                    className="w-4 h-4 mr-2 text-gray-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                                    />
+                                  </svg>
+                                  Key Insights
+                                  <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                    {selectedNode.insights.length}
+                                  </span>
+                                </h4>
+                                <div className="space-y-2 max-h-32 overflow-y-auto">
+                                  {selectedNode.insights.map((insight, i) => (
+                                    <div
+                                      key={i}
+                                      className="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 hover:shadow-sm transition-all duration-200"
+                                    >
+                                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                                      <span className="text-sm text-gray-700 leading-relaxed">
+                                        {insight}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="px-6 pb-6">
+                              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                  Click anywhere to close
+                                </div>
+                                <button
+                                  onClick={() => setSelectedNode(null)}
+                                  className="px-4 py-2 bg-black text-white text-xs font-medium rounded-full hover:bg-gray-800 transition-colors duration-200"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Decorative elements */}
+                          <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full opacity-60 animate-pulse"></div>
+                          <div
+                            className="absolute -bottom-2 -left-2 w-3 h-3 bg-purple-400 rounded-full opacity-40 animate-pulse"
+                            style={{ animationDelay: "1s" }}
+                          ></div>
+                        </div>
+
+                        {/* Click outside to close */}
+                        <div
+                          className="absolute inset-0 -z-10"
                           onClick={() => setSelectedNode(null)}
-                          aria-label="Close"
-                        >
-                          ×
-                        </button>
-                        <h3 className="text-xl font-bold mb-2">
-                          {selectedNode.id}
-                        </h3>
-                        <div className="flex gap-2 mb-4">
-                          <span className="px-2 py-1 bg-gray-100 rounded text-xs font-semibold text-gray-700">
-                            {selectedNode.group}
-                          </span>
-                          <span className="px-2 py-1 bg-blue-100 rounded text-xs font-semibold text-blue-700">
-                            {selectedNode.category}
-                          </span>
-                        </div>
-                        <p className="text-gray-700 mb-4">
-                          {selectedNode.description}
-                        </p>
-                        <div className="mb-4">
-                          <h4 className="font-semibold mb-1">Insights</h4>
-                          <ul className="list-disc list-inside text-gray-600">
-                            {selectedNode.insights.map((insight, i) => (
-                              <li key={i}>{insight}</li>
-                            ))}
-                          </ul>
-                        </div>
+                        ></div>
                       </div>
                     )}
                   </>

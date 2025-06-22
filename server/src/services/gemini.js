@@ -99,7 +99,7 @@ async function chatWithGemini({ botId, message }) {
       role: "user",
       parts: [
         {
-          text: `You are a smart product assistant helping users understand product information.
+          text: `You are a smart product assistant to whatever company your are representing specifically helping users understand product information.
 Product Info: ${bot.context}
 Instructions: ${bot.prompt}
 Tone: ${bot.tone}
