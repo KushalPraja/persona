@@ -80,8 +80,8 @@ function ElegantShape({
 
 export default function HeroGeometric({
   badge = "Persona",
-  title1 = "Build Visual",
-  title2 = "Data Workflows",
+  title1 = "Scale Your",
+  title2 = "Business",
 }: {
   badge?: string;
   title1?: string;
@@ -199,8 +199,8 @@ export default function HeroGeometric({
             animate="visible"
           >
             <p className="text-base sm:text-lg md:text-xl text-white/40 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
-              Drag, connect, and run smart product-agents with AI-powered
-              insights and beautiful 3D visualizations.
+              Deploy intelligent AI agents that serve as dynamic knowledge bases for your business.
+              Scale operations 24/7 with autonomous agents that instantly access given company data and answer questions.
             </p>
           </motion.div>
         </div>

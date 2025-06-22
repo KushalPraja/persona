@@ -197,7 +197,7 @@ export default function Home() {
             <h1 className="text-4xl font-bold text-black tracking-tight">Persona</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Create intelligent documentation flows for your products. Build connected knowledge bases with precision and elegance.
+            Create custom AI models tuned for your business with just 1 click. Build connected knowledge bases with precision and elegance.
           </p>
         </div>
 
