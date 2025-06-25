@@ -1,5 +1,10 @@
 # Persona - AI Agent Knowledge Base Platform
 
+
+
+https://github.com/user-attachments/assets/f9c1894c-e447-4a3d-8456-22e78a5ac565
+
+
 Transform your business operations with intelligent AI agents that serve as dynamic knowledge bases. Scale operations 24/7 with autonomous agents that instantly access company data, answer questions, and automate workflows.
 
 ## 🚀 Features
