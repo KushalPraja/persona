@@ -7,7 +7,7 @@ https://github.com/user-attachments/assets/f9c1894c-e447-4a3d-8456-22e78a5ac565
 
 Transform your business operations with intelligent AI agents that serve as dynamic knowledge bases. Scale operations 24/7 with autonomous agents that instantly access company data, answer questions, and automate workflows.
 
-## 🚀 Features
+## Features
 
 ### AI Agent Automation
 - **Intelligent Knowledge Bases**: Deploy AI agents that serve as dynamic repositories of business intelligence
@@ -49,7 +49,7 @@ Transform your business operations with intelligent AI agents that serve as dyna
 - **Local Storage**: Client-side data persistence
 - **SVG Graphics**: Scalable vector graphics for branding
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 persona/
